@@ -1,0 +1,48 @@
+# sample input file for dla-nd
+
+# random seed, default=1
+#seed 1234
+
+# simulation attributes
+particles	1000000	# place up to N particles
+output_step	100	# write output every M particles
+
+# particle attributes, these are defaults
+#rad		0.005	# if you want to change the default particle size
+
+# all of these attributes are currently set to defaults, uncomment
+#   AND change them, if you want to see some effect
+#bulk_vel	0 0 0	# particles have a bulk velocity
+#penetration	0.1	# fraction of overlap before a hit is registered
+#stickiness	1.0	# probability that a particle will stick, per hit
+#stub		0	# number of hits on a specific frozen particle
+			# before it will accept any attachments (integer)
+#grip		0.0	# after attaching, a particle will slide this
+			# fraction of its radius toward the particle it
+			# attached to
+#rotex		50 0.2	# recreate rotex growth around z axis, first argument
+			# is diameter in particles, second is perfection
+			# (>3 means perfect arcs, 0..1 are more wispy and random)
+
+# tree options, again, these are currently set to defaults
+#max_levels	50	# maximum number of levels in the tree
+#max_ppc	40	# maximum number of particles per cell
+
+# the seed particle's mass, location, and velocity (velocity ignored)
+add_part	1 0 0 0 0	# 2D
+#add_part	1 0 0 0 0 0 0	# 3D
+# read in a whole file full of particles, translate
+#read_stat	file.p3d	0 0
+
+# output file options
+write_dot	no	# image file has white pixels at particle centers
+write_dens	yes	# create density field, write it
+write_pgm	no	# write an ASCII PGM file
+write_png	yes	# write a PNG file
+write_part	yes	# write raw ASCII file of particle locations
+write_obj	no	# compute connectivity, write tubular-style OBJ
+image_size	512	# resolution for all output images
+image_depth	8	# bits per pixel for images, 8 or 16
+
+write_stats	sample.dat	# name the statistics file
+write_temp	last.p3d	# name the constantly-overwritten last p3d file

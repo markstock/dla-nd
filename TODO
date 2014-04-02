@@ -1,0 +1,133 @@
+New stuff 2006-09-03
+
+Must add priority queue to nearest-neighbor-finding routine, as part
+of approximate neighbor-finding mechanism
+
+Approximate neighbor-finding
+
+Allow particles to start from arbitrary shapes: spheres, tri meshes,
+cylinders, etc. How to do this? 
+
+Have objects with "bounce" conditions (how?)
+
+Grow the segments according to M^(-1/3)
+
+Render the segments according to M^0 (like Andy Lomas)
+Enh. Looks OK. Need much larger simulations, though. Damn, how
+does he get 30M particles?
+
+Incorporate multithreading! When are we going to be able to build it, though?
+
+
+Older stuff:
+
+Compute mass dimension
+http://classes.yale.edu/Fractals/Panorama/Physics/DLA/DLA6.html
+
+N(r) = k * r^d
+
+N(r) is the number of particles inside radius r
+k is a constant
+d_m is 1.71 for 2D clusters, and 2.5 for 3D clusters (as far as we know)
+
+My sims look like 1.8, actually. Hmmmmm.
+
+----------------
+http://prola.aps.org/abstract/PRA/v40/i1/p428_1
+Phys. Rev. A 40, 428–437 (1989)
+Off-lattice and hypercubic-lattice models for diffusion-limited aggregation in dimensionalities 2–8
+
+Susan Tolman and Paul Meakin
+Central Research and Development Department, E.I. du Pont de Nemours Company, Wilmington, Delaware 19880-0356
+
+Received 30 January 1989
+
+Improved algorithms have been developed to simulate both off-lattice
+and hypercubic-lattice diffusion-limited aggregation (DLA) in
+dimensionalities d in the range 2 <= d <= 8. For the two-dimensional
+cases using off-lattice clusters containing up to 106 particles, we
+find that the effective fractal dimensionality is essentially independent
+of cluster size s for clusters containing more than a few thousand
+particles and has a value of 1.715±0.004 (significantly higher than
+the mean-field value of (5/3). For d=3, 4, and 5, it appears to be
+possible to approach quite close to the asymptotic (s--> [infinity] )
+regime and the effective fractal dimensionality for off-lattice clusters
+is equal to the mean-field value given by D=(d^2+1)/(d+1) (within a few
+tenths of 1%). For d >= 5 we were not able to approach near enough to
+the asymptotic limit to make an accurate estimate of the limiting
+fractal dimensionality. However, the simulation results are consistent
+with the mean-field theory predictions. For d <= 4 the effects of
+lattice anisotropy can be seen in the overall shapes of the clusters
+and the dependence of the cluster radius of gyration on s. For d >= 5
+clusters containing 105 sites are still in the fluctuation-dominated
+regime and the dependence of Rg on s is essentially the same for both
+off-lattice and hypercubic-lattice models. For d=2 the effective value
+of nu -bar, which describes how the width of the active zone grows,
+increases with increasing cluster size and approaches a value of 1/1.715.
+----------------
+
+
+Gaussian random numbers:
+
+double normal(double mean, double sigma) {
+#define PI 3.1415927
+        double ReturnNormal;
+	// should we generate two normals?
+	if(NumNormals == 0 ) {
+	  double r1 = unif();
+	  double r2 = unif();
+	  ReturnNormal = sqrt(-2*log(r1))*cos(2*PI*r2);
+	  SaveNormal   = sqrt(-2*log(r1))*sin(2*PI*r2);
+	  NumNormals = 1;
+        } else {
+	  NumNormals = 0;
+          ReturnNormal = SaveNormal;
+        }
+	return ReturnNormal*sigma + mean ;
+}
+
+takes 2 uniform random numbers and creates two gaussian random numers!
+
+solve quartic equation to find t
+
+
+IDEA to speed up dla-nd calculation!
+
+Each step in the accelerated-random-walk routine currently determines
+the distance to the nearest portion of the existing structure. For a
+structure with N particles, that takes O (log N) time. But, for
+large steps, the probability of a random point on the sphere intersecting
+with the closest particle (that determined the radius) is exceedingly 
+small! Thus, the distance checking routine should be allowed to stop
+after a fixed number of recursion levels---providing a "no particle
+inside" estimate in O (1) time.
+
+Another way of looking at it is that in the case of a run with
+1M unit-sized particles, the overal structure may be 1000x1000,
+and for one specific step in the walk procedure, the distance to the
+nearest particle is 100. It may take only two recursions to achieve
+a distance estimate of 90, though it may take 3 more recursions to
+attain the exact distance. Why not only recurse twice for all steps, 
+and get most of the gain for less than half of the work?
+
+This may not work, as it seems like the number of walk steps is 
+not the source of the poor scaling performance. It must be the
+nearest-distance-finder, that must be the cause of the O(N) scaling.
+
+ANOTHER idea is to actually use research-grade search routines. See 
+the Parallel-Axis Trees paper that Adrin sent me for algorithms and
+references. Those can begin their searches from the leaf node and
+work up the tree instead. Is that a good idea?
+
+Nope, no good ideas there. We already implemented them.
+
+ALSO, add these features:
+1) write a temporary .p3d file for the most-recent written state, 
+even if the input file says not to write it (you might change your 
+mind, see?) - DONE
+2) write a line to a status file every time the construct radius is 
+calculated: "N  rad  longest_chain" other statistics? - DONE
+3) allow for slower zoom-out on the png-writing, maybe use a plot zone
+method, like in vort3d - DONE
+4) add timing routines between the output steps - DONE
+
