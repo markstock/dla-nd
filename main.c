@@ -2,7 +2,7 @@
  *
  *  main.c - Arbitrary-dimensional diffusion-limited aggregation
  *
- *  Copyright (C) 2000-14  Mark J. Stock, mstock@umich.edu
+ *  Copyright (C) 2000-15  Mark J. Stock, mstock@umich.edu
  * 
  *  This file is part of dla-nd.
  *
@@ -40,6 +40,7 @@
  *                       enhancements to allow Lichtenberg figures
  * 2008-10-18 MJS  v1.3  support file-input options on command-line
  * 2014-03-05 MJS  v1.4  multiple methods for segment rejection
+ * 2015-01-01 MJS  v1.5  smooth junctions each step
  *
  *********************************************************** */
 
@@ -363,6 +364,12 @@ int diffuse_new_particle(sim_ptr sim,cell_ptr top,FLOAT* vel) {
 
          // apply the final touches
 
+         // if grip is on, slide it closer
+         if (sim->use_grip) {
+            // particle "grips" and slides toward the contacted particle
+            for (d=0;d<DIM;d++) loc[d] -= sim->grip*(loc[d]-closepart->x[d]);
+         }
+
          // if chiral is on, rotate it around the parent particle
          if (sim->use_chiral) {
             // particle rotates around the contacted particle in x-y plane only
@@ -370,12 +377,6 @@ int diffuse_new_particle(sim_ptr sim,cell_ptr top,FLOAT* vel) {
             //fprintf(stderr,"loc starts %g %g\n",loc[0],loc[1]);
             correct_for_chiral(loc,closepart,sim->chiral_angle,sim->chiral_power);
             //fprintf(stderr,"  and ends %g %g\n",loc[0],loc[1]);
-         }
-
-         // if grip is on, slide it closer
-         if (sim->use_grip) {
-            // particle "grips" and slides toward the contacted particle
-            for (d=0;d<DIM;d++) loc[d] -= sim->grip*(loc[d]-closepart->x[d]);
          }
 
          // test against a fixed volume
@@ -451,17 +452,70 @@ int diffuse_new_particle(sim_ptr sim,cell_ptr top,FLOAT* vel) {
          // define the rootward particle
          newpart->root = closepart;
 
+         // add to list of root's tipward particles
+         newpart->next_tip = newpart->root->tip_head;
+         newpart->root->tip_head = newpart;
+
          // set this particles mass, and add 1.0 to all rootward masses
          add_to_rootward_masses (newpart);
 
-         //fprintf(stderr,"  planting particle at %g %g, rad is %g, npr is %g\n\n",loc[0],loc[1],rad,sim->new_part_rad);
+         // if junction flow is on, adjust the position of the contacted particle!
+         if (sim->use_junction_flow) {
+            static int dbg_jctn = FALSE;
+            if (dbg_jctn) fprintf(stderr,"\nmarching toward root\n");
+            // march down the branches to the root, adjusting every node as you go
+            particle_ptr nextroot = newpart->root;
+            while (nextroot) {
+               // the rootward node of this one must exist, also!
+               if (nextroot->root) {
 
+                  // find outflow and sum of all inflows
+                  FLOAT in[DIM];
+                  for (d=0; d<DIM; d++) in[d] = 0.0;
+                  FLOAT inmass = 0.0;
+                  particle_ptr tip = nextroot->tip_head;
+                  while (tip) {
+                     for (d=0; d<DIM; d++) in[d] += tip->mass * (tip->x[d] - nextroot->x[d]);
+                     inmass += tip->mass;
+                     tip = tip->next_tip;
+                  }
+                  // should we normalize the vector, or just divide by weight?
+                  if (TRUE) {
+                     inmass = 0.0;
+                     for (d=0; d<DIM; d++) inmass += in[d]*in[d];
+                     inmass = sqrt(inmass) / sim->new_part_rad;
+                  }
+                  for (d=0; d<DIM; d++) in[d] /= inmass;
+                  if (dbg_jctn) fprintf(stderr,"in mass %g and vector %g %g %g\n",inmass,in[0],in[1],in[2]);
+
+                  // subtract one from rootward mass so that masses balance on each side
+                  FLOAT out[DIM];
+                  FLOAT outmass = nextroot->mass - 1.0;
+                  for (d=0; d<DIM; d++) out[d] = outmass * (nextroot->root->x[d] - nextroot->x[d]);
+                  if (TRUE) {
+                     outmass = 0.0;
+                     for (d=0; d<DIM; d++) outmass += out[d]*out[d];
+                     outmass = sqrt(outmass) / sim->new_part_rad;
+                  }
+                  for (d=0; d<DIM; d++) out[d] /= outmass;
+                  if (dbg_jctn) fprintf(stderr,"out mass %g and vector %g %g %g\n",outmass,out[0],out[1],out[2]);
+
+                  // finally, shift the point a little
+                  for (d=0; d<DIM; d++) nextroot->x[d] += sim->junction_coeff*(in[d]+out[d])
+                                                         / (1.0 + sim->junction_coeff);;
+               }
+               nextroot = nextroot->root;
+            }
+         }
+
+         //fprintf(stderr,"  planting particle at %g %g, rad is %g, npr is %g\n\n",loc[0],loc[1],rad,sim->new_part_rad);
          trying_particles = FALSE;
 
          // and if we were successful, even with stubbornness, reset counter
          if (sim->use_stubborn) {
             closepart->counter = 0;
          }
+
       } else {
          // or, because we were too far away
          // fprintf(stderr,"  particle at %g %g %g, rad is %g, is too far\n",loc[0],loc[1],loc[2],rad);

@@ -2,7 +2,7 @@
  *
  *  structs.h - data structures supporting dla-nd
  *
- *  Copyright (C) 2000-8,14  Mark J. Stock
+ *  Copyright (C) 2000-8,14-15  Mark J. Stock
  *
  *  This file is part of dla-nd.
  *
@@ -83,8 +83,15 @@ typedef struct particle_record {
    unsigned short int counter;	/* counter for stubbornness */
    //char stationary;		/* is the particle static (immobile) */
    //int flag;			/* generic flag */
+   // pointers for tree
    particle_ptr next;		/* pointer to the next node in the list */
+
+   // pointer to rootward
    particle_ptr root;		/* pointer to the rootward node */
+
+   // pointers to tipward
+   particle_ptr tip_head;	/* pointer to the head of the list of tipward nodes */
+   particle_ptr next_tip;	/* pointer to the next node in the list of tipward nodes */
 } PARTICLE;
 
 //unsigned short int stationary_mask = 1;
@@ -213,6 +220,9 @@ typedef struct simulation_properties {
    FLOAT chiral_diameter;	// how many particles fit across a perfect circle
    FLOAT chiral_angle;		// the corresponding angle per particle
    FLOAT chiral_power;		// exponent on arc-following weight
+
+   int use_junction_flow;	// adjust contacted node toward mean flow vector
+   FLOAT junction_coeff;	// amount of adjustment (1.0 = average old and new positions)
 
    char bdry[DIM][2];		/* boundary types, 0=OPEN, 1=WALL, 2=PERIODIC */
 

@@ -96,6 +96,9 @@ int set_defaults (sim_ptr sim, cell_ptr top) {
    sim->chiral_angle = 2.*M_PI/sim->chiral_diameter;
    sim->chiral_power = 2.;
 
+   sim->use_junction_flow = FALSE;
+   sim->junction_coeff = 0.0;
+
    for (d=0;d<DIM;d++) {
       sim->bdry[d][0] = WALL;
       sim->bdry[d][1] = WALL;
@@ -190,6 +193,10 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
             for (d=0;d<DIM;d++) sim->source_vec[d] = atof(argv[++i]);
          } else if (strncmp(argv[i], "-rad", 2) == 0) {
             sim->new_part_rad = atof(argv[++i]);
+         } else if (strncmp(argv[i], "-vel", 4) == 0) {
+            sim->use_bulk_vel = TRUE;
+            if (i == argc-DIM) Usage(sim->exectuable_fn,1);
+            for (d=0;d<DIM;d++) sim->bulk_vel[d] = atof(argv[++i]);
          } else if (strncmp(argv[i], "-dot", 4) == 0) {
             sim->write_dot = TRUE;
          } else if (strncmp(argv[i], "-stick", 6) == 0) {
@@ -200,6 +207,11 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
             sim->use_grip = TRUE;
             if (i == argc-1) Usage(sim->exectuable_fn,1);
             sim->grip = atof(argv[++i]);
+         } else if (strncmp(argv[i], "-junction", 5) == 0) {
+            sim->use_junction_flow = TRUE;
+            if (i == argc-1) Usage(sim->exectuable_fn,1);
+            sim->junction_coeff = atof(argv[++i]);
+
          } else {
             fprintf(stderr,"Unrecognized argument (%s)\n",argv[i]);
             (void) Usage(sim->exectuable_fn,0);
@@ -398,24 +410,9 @@ int add_particles_from_file(sim_ptr sim,cell_ptr top,int i,char is_stat) {
  */
 particle_ptr new_particle(int i,FLOAT m,FLOAT r,FLOAT* x,FLOAT* u){
 
-   int d;
-   particle_ptr newpart;
-
-   newpart = (PARTICLE*)malloc(sizeof(PARTICLE));
-   newpart->index = i;
-   //newpart->mass = m;
-   // set new mass as zero, add tipward masses later
-   newpart->mass = 0.;
-   newpart->rad = r;
-   for (d=0;d<DIM;d++) newpart->x[d] = x[d];
-   // for (d=0;d<DIM;d++) newpart->u[d] = u[d];
-   newpart->counter = 0;
+   particle_ptr newpart = new_stationary_particle(i,r,x);
    newpart->bitfield = 0;	// 0 means not stationary
-   newpart->next = NULL;
-   newpart->root = NULL;
-
    // fprintf(stderr,"Added particle %d with mass %g and radius %g\n",newpart->index,newpart->mass,newpart->rad);
-
    return(newpart);
 }
 
@@ -437,6 +434,8 @@ particle_ptr new_stationary_particle(int i,FLOAT r,FLOAT* x){
    newpart->bitfield = 1;	// 1 means stationary
    newpart->next = NULL;
    newpart->root = NULL;
+   newpart->tip_head = NULL;
+   newpart->next_tip = NULL;
 
    return(newpart);
 }
