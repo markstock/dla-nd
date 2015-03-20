@@ -17,7 +17,7 @@ HFILES = structs.h
 #CFLAGS = -lm -lpng -O1 -funroll-loops
 #CFLAGS = -lm -lpng -pg
 #CFLAGS = -lm -lpng -pg -ggdb -Wall
-CFLAGS=-O3 -funroll-loops -ffast-math -Wall
+CFLAGS=-O3 -funroll-loops -ffast-math -Wall -std=c99
 LIBS=-lm -lpng
 #LIBS=-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -L/Developer/SDKs/MacOSX10.5.sdk/usr/X11/lib -lm -lpng
 

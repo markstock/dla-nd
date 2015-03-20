@@ -50,6 +50,7 @@
 // you won't need to change any other defines
 #define TRUE 1
 #define FALSE 0
+#define M_PI           3.14159265358979323846
 #define PI 3.1415926535
 #define TWOPI 6.28318531
 #define PIOT 1.57079633

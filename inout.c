@@ -920,7 +920,7 @@ int write_obj_segs(cell_ptr c,FILE* outfile,int index){
 /*
  * Write a description of the nodes and segments in modified .obj file
  */
-int write_seg(sim_ptr sim,cell_ptr top,char *filename){
+int write_seg (sim_ptr sim,cell_ptr top,char *filename){
 
    int numnodes,numsegs;
    FILE *outfile;
@@ -959,27 +959,28 @@ int write_seg(sim_ptr sim,cell_ptr top,char *filename){
  */
 int write_seg_nodes(cell_ptr c,FILE* outfile,int index){
 
-   int i;//,cnt;
-   FLOAT rad;
-   particle_ptr curr;
+   //int i;//,cnt;
+   //FLOAT rad;
+   //particle_ptr curr;
 
    // fprintf(outfile,"\n# cell at level %d\n",c->level);
 
    if (c->has_subcells) {
       /* recurse for the subcells */
-      for (i=0;i<NCHILD;i++)
+      for (int i=0;i<NCHILD;i++)
          index = write_seg_nodes(c->s[i],outfile,index);
    } else {
       /* write out the nodes */
-      curr = c->first;
+      particle_ptr curr = c->first;
       //cnt = 0;
       while (curr) {
+         // New: do not write radii here!
          // Does Murray's Law work in 2D, 3D or what?
-         // rad = 0.05*curr->rad*pow(curr->mass,1./3.);
-         rad = 0.05*curr->rad*pow(curr->mass,1./DIM);
+         //rad = 0.05*curr->rad*pow(curr->mass,1./DIM);
          fprintf(outfile,"v");
-         for (i=0;i<DIM;i++) fprintf(outfile," %g",curr->x[i]);
-         fprintf(outfile,"\nvr %g\n",rad);
+         for (int i=0;i<DIM;i++) fprintf(outfile," %g",curr->x[i]);
+         fprintf(outfile,"\n");
+         //fprintf(outfile,"\nvr %g\n",rad);
          // fprintf(outfile,"v %g %g %g %g\n",curr->x[0],curr->x[1],curr->x[2],rad);
          curr->index = ++index;
          // index++;
@@ -995,25 +996,27 @@ int write_seg_nodes(cell_ptr c,FILE* outfile,int index){
 /*
  * Write the segments' connectivity
  */
-int write_seg_segs(cell_ptr c,FILE* outfile,int index){
-
-   int i;//,cnt;
-   particle_ptr curr;
+int write_seg_segs (cell_ptr c, FILE* outfile, int index){
 
    // fprintf(outfile,"\n# cell at level %d\n",c->level);
 
    if (c->has_subcells) {
       /* recurse for the subcells */
-      for (i=0;i<NCHILD;i++)
+      for (int i=0;i<NCHILD;i++)
          index = write_seg_segs(c->s[i],outfile,index);
    } else {
       /* write out the segments */
-      curr = c->first;
-      //cnt = 0;
+      particle_ptr curr = c->first;
       while (curr) {
          if (curr->root) {
-            fprintf(outfile,"s %d/%d %d/%d\n",curr->index,curr->index,
-                    curr->root->index,curr->root->index);
+            // write two unique radii first
+            FLOAT rad1 = 0.05*curr->rad*pow(curr->mass,    1./DIM);
+            FLOAT rad2 = 0.05*curr->rad*pow(curr->mass+1.0,1./DIM);
+            fprintf(outfile,"vr %g\n",rad1);
+            fprintf(outfile,"vr %g\n",rad2);
+            // then write the segment
+            fprintf(outfile,"s %d/%d %d/%d\n", curr->index, 2*index+1,
+                    curr->root->index, 2*index+2);
             index++;
          }
          curr = curr->next;
