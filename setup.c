@@ -56,7 +56,7 @@ int set_defaults (sim_ptr sim, cell_ptr top) {
    strcpy(sim->temp_file,".temp.pnd");
 
    // particle masks
-   sim->trim_method = none;
+   sim->trim_method = notrim;
    sim->trim_rad = 0.5;
    strcpy(sim->trim_file,"trim.png");
 
@@ -86,7 +86,7 @@ int set_defaults (sim_ptr sim, cell_ptr top) {
    sim->use_stubborn = FALSE;
    sim->stubborn = 0;
 
-   sim->use_bulk_vel = FALSE;
+   sim->use_bulk_vel = nobulk;
    for (d=0;d<DIM;d++) {
       sim->bulk_vel[d] = 0.0;
    }
@@ -191,10 +191,14 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
             sim->particle_source = point;
             if (i == argc-DIM) Usage(sim->exectuable_fn,1);
             for (d=0;d<DIM;d++) sim->source_vec[d] = atof(argv[++i]);
-         } else if (strncmp(argv[i], "-rad", 2) == 0) {
+         } else if (strncmp(argv[i], "-rad", 3) == 0) {
             sim->new_part_rad = atof(argv[++i]);
          } else if (strncmp(argv[i], "-vel", 4) == 0) {
-            sim->use_bulk_vel = TRUE;
+            sim->use_bulk_vel = straight;
+            if (i == argc-DIM) Usage(sim->exectuable_fn,1);
+            for (d=0;d<DIM;d++) sim->bulk_vel[d] = atof(argv[++i]);
+         } else if (strncmp(argv[i], "-rotex", 4) == 0) {
+            sim->use_bulk_vel = rotex;
             if (i == argc-DIM) Usage(sim->exectuable_fn,1);
             for (d=0;d<DIM;d++) sim->bulk_vel[d] = atof(argv[++i]);
          } else if (strncmp(argv[i], "-dot", 4) == 0) {
@@ -617,7 +621,7 @@ int read_input_file(sim_ptr sim,cell_ptr top) {
             sim->use_stubborn = TRUE;
             sim->stubborn = atoi(token[1]);
          } else if (strncmp(token[0],"bulk_vel",8) == 0) {
-            sim->use_bulk_vel = TRUE;
+            sim->use_bulk_vel = straight;
             for (d=0;d<DIM;d++) sim->bulk_vel[d] = atof(token[d+1]);
          } else if (strncmp(token[0],"chiral",6) == 0) {
             sim->use_chiral = TRUE;

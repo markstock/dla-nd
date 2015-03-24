@@ -144,8 +144,16 @@ typedef enum diffuse_source {
    mask		// from a point selected from a mask image
 } SOURCE;
 
+typedef enum bulkvel_type {
+   nobulk,	// no bulk velocity
+   straight,	// in a straight line along the given vector
+   rotex,	// in a vortex around the given vector
+   frompng,	// read velocity from a png file
+   frombof	// read velocity from a brick of floats
+} BULKVEL;
+
 typedef enum geometry_trimmer {
-   none,	// do not trim to geometry
+   notrim,	// do not trim to geometry
    cube,	// trim to origin-centered cube
    plane,	// trim to origin-centered thick planar band (in z)
    sphere,	// trim to origin-centered sphere
@@ -207,7 +215,7 @@ typedef struct simulation_properties {
    int use_stickiness;
    FLOAT stickiness;		// probability of sticking per contact
 
-   int use_bulk_vel;
+   BULKVEL use_bulk_vel;
    FLOAT bulk_vel[DIM];		// add bulk velocity to random walk
 
    int use_grip;

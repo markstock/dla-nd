@@ -41,6 +41,7 @@
  * 2008-10-18 MJS  v1.3  support file-input options on command-line
  * 2014-03-05 MJS  v1.4  multiple methods for segment rejection
  * 2015-01-01 MJS  v1.5  smooth junctions each step
+ * 2015-03-21 MJS  v1.6  enabling multiple types of bulk velocity
  *
  *********************************************************** */
 
@@ -49,7 +50,7 @@
 
 int run_sim (sim_ptr,cell_ptr);
 int diffuse_new_particle (sim_ptr,cell_ptr,FLOAT*);
-void pick_point_on_sphere (FLOAT*,FLOAT*,FLOAT,int,FLOAT*);
+void pick_point_on_sphere (FLOAT*,FLOAT*,FLOAT,BULKVEL,FLOAT*);
 FLOAT find_dist_to_closest (cell_ptr,FLOAT*,FLOAT,particle_ptr,particle_ptr*);
 FLOAT find_dist_to_closest2 (cell_ptr,FLOAT*,FLOAT,particle_ptr,particle_ptr*);
 FLOAT find_dist_to_farthest (cell_ptr,FLOAT*,FLOAT);
@@ -560,7 +561,7 @@ int find_start_point (sim_ptr sim, cell_ptr top, FLOAT *center,
    for (d=0;d<DIM;d++) startvel[d]=0.0;
 
    (void) pick_point_on_sphere(startloc, center, rad+sim->new_part_rad,
-                               FALSE, startvel);
+                               nobulk, startvel);
    // fprintf(stderr,"  first move to %g %g\n",startloc[0],startloc[1]);
 
    // testing Lichtenberg figures
@@ -584,7 +585,8 @@ int find_start_point (sim_ptr sim, cell_ptr top, FLOAT *center,
  * outputs
  *   loc[DIM]  new point
  */
-void pick_point_on_sphere(FLOAT* loc,FLOAT* center,FLOAT rad,int use_vel,FLOAT* vel) {
+void pick_point_on_sphere (FLOAT* loc, FLOAT* center, FLOAT rad,
+                           BULKVEL use_vel, FLOAT* vel) {
 
    // int rotex = TRUE;
    int d,td;
@@ -594,27 +596,38 @@ void pick_point_on_sphere(FLOAT* loc,FLOAT* center,FLOAT rad,int use_vel,FLOAT* 
    FLOAT len = 2.;
    FLOAT dt = rad*rad;
    FLOAT a[5],sdev[DIM+1],r1,r2;
+   FLOAT thisvel[DIM];
+   for (d=0;d<DIM;d++) thisvel[d] = 0.0;
 
    // first, account for bulk velocity
-   if (use_vel) {
-#ifdef OLD
+   if (use_vel == rotex) {
       // This was the old rotex growth thing, but all it does is influence
       //   the bulk velocity, this should be incorported differently, maybe
       //   as a list of potential flow primitives (freestream, vortex, source)
-      // if (rotex) {
-         // point velocity around counterclockwise
-         // dt = vec_length_sq(center)*vec_length(center);
-         vel[0] = -1000.*center[1];
-         vel[1] = 1000.*center[0];
-         vel[0] += -1000.*center[0];
-         vel[1] += -1000.*center[1];
-         for (d=2;d<DIM;d++) vel[d] = 0.;
-         // reduce rad so that curves stay curvy
-         dt = 0.25*vec_length(center);
-         if (rad > dt) rad = dt;
-      // }
-#endif
+      // point velocity around counterclockwise
+      // dt = vec_length_sq(center)*vec_length(center);
+      float dist_from_origin = vec_length(center);
+      #if DIM==2
+         // 2d flow, use vel[0] as vortex strength
+         thisvel[0] = 10. * (vel[0] * -center[1] - center[0]);// / dist_from_origin;
+         thisvel[1] = 10. * (vel[0] *  center[0] - center[1]);// / dist_from_origin;
+      #endif
+      #if DIM==3
+         // 3d flow, use vel[0:2] as vectorial vortex strength
+         thisvel[0] = (vel[1]*center[2] - vel[2]*center[1]) / dist_from_origin;
+         thisvel[1] = (vel[2]*center[0] - vel[0]*center[2]) / dist_from_origin;
+         thisvel[2] = (vel[0]*center[1] - vel[1]*center[0]) / dist_from_origin;
+      #endif
+      // don't take steps so long that particles don't curve
+      dt = 0.25*dist_from_origin;///vel[0];
+      if (rad > dt) rad = dt;
+
+   } else if (use_vel == straight) {
       // fprintf(stderr,"bulk vel is %g %g\n",vel[0],vel[1]);
+      for (d=0;d<DIM;d++) thisvel[d] = vel[d];
+   }
+
+   if (use_vel != nobulk) {
       // first, find the number of standard deviations in each direction
       for (td=0;td<(DIM+1)/2;td++) {
          gaussian_rand(&r1,&r2);
@@ -623,7 +636,7 @@ void pick_point_on_sphere(FLOAT* loc,FLOAT* center,FLOAT rad,int use_vel,FLOAT* 
       }
       // fprintf(stderr,"std devs are %g %g\n",sdev[0],sdev[1]);
       // then, set up the quartic equation
-      a[4] = vec_length_sq(vel);
+      a[4] = vec_length_sq(thisvel);
       a[3] = 2.0*vec_dot(vel,sdev);
       a[2] = vec_length_sq(sdev);
       a[1] = 0.0;
@@ -635,7 +648,7 @@ void pick_point_on_sphere(FLOAT* loc,FLOAT* center,FLOAT rad,int use_vel,FLOAT* 
       // determine the real dt
       dt *= dt;
       // move the particle due to convection
-      for (d=0;d<DIM;d++) loc[d] += dt*vel[d];
+      for (d=0;d<DIM;d++) loc[d] += dt*thisvel[d];
       // now we're done!
       return;
 #ifdef OLD
