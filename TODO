@@ -1,3 +1,7 @@
+New 2017-09-27
+
+Add export to ply format - particles and/or segments
+
 New stuff 2006-09-03
 
 Must add priority queue to nearest-neighbor-finding routine, as part
