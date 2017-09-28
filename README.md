@@ -1,13 +1,9 @@
-
-dla-nd
+# dla-nd
 
 An arbitrary-dimensional diffusion-limited aggregation simulator
-Mark J Stock <mstock@umich.edu>
-
-http://mark.technolope.org/dla-nd/
 
 
-I. Building the software --------------------------------------------------
+## Building the software
 
 The Windows binaries are prebuilt and should run on most Windows 
 computers. E-mail me if, for some reason, they do not. I use MinGW
@@ -21,12 +17,12 @@ able to improve the code and documentation for all future users.
 
 In the directory that this file is in, just type
 
-make
+    make
 
 and several binary executables will be made. If you want to build a 
 specific executable for 1D through 5D, just type
 
-make dla-5d
+    make dla-5d
 
 replacing the 5 with 1, 2, 3, or 4, when appropriate. If you want to
 build an executable for higher dimensions, you'll need to edit the 
@@ -34,15 +30,15 @@ structs.h file and add your own code. I'm sorry about the lack of
 automation with that.
 
 
-II. Usage -----------------------------------------------------------------
+## Usage
 
 Edit the sample.dnd file, making sure to match all coordinate input with
 the number of dimensions in the problem.
 
 Unix users can then run the desired program as shown:
 
-dla-2d sample.dnd
-dla-2d < sample.dnd
+    dla-2d sample.dnd
+    dla-2d < sample.dnd
 
 Windows users have several options. You can drag the .dnd file onto the
 appropriate .exe file, whereupon the output files will either appear in
@@ -52,20 +48,20 @@ case was C:\Documents and Settings\mstock).
 You can also run "cmd" to enter the DOS-like command prompt. From there,
 you can run 
 
-dla-2d.exe sample.dnd
+    dla-2d.exe sample.dnd
 
 Lastly, you can download and install MSYS, a Unix-like environment,
 and run the program from within MSYS using
 
-dla-2d.exe sample.dnd
-dla-2d.exe < sample.dnd
+    dla-2d.exe sample.dnd
+    dla-2d.exe < sample.dnd
 
 If your .dnd file is set up to read in another file, you need to make
 sure that the other file is in either (or both) your current working 
 directory or your home directory. As a windows novice, this confused me.
 
 
-III. Advanced use ---------------------------------------------------------
+## Advanced use
 
 Feel free to monkey with the code. If you look in the Makefile, and the 
 first part of structs.h, you'll quickly see how to make executables that
@@ -73,7 +69,7 @@ can track ANY number of dimensions. So, if you want to run a 27-dimensional
 DLA, all you need is a large-enough computer.
 
 
-IV. Conclusion ------------------------------------------------------------
+## Conclusion
 
 Thanks for taking the time to check this out. If you are having fun, I'd 
 love to hear from you.
@@ -83,7 +79,7 @@ mstock@umich.edu
 2005-09-14
 
 
-Appendix A --- Change Log -------------------------------------------------
+## Change Log
 
 v1.0	Windows and Linux executables included
 
