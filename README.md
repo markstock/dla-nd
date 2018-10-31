@@ -19,17 +19,6 @@ See some images and more at (http://markjstock.org/dla-nd/)
 
 
 ## Building the software
-
-The Windows binaries are prebuilt and should run on most Windows 
-computers. E-mail me if, for some reason, they do not. I use MinGW
-to compile the Windows versions.
-
-Compiled Linux binaries are included, too. If those don't work on 
-your Unix-like system, building the program should be easy. I hope
-it is easy. If you have problems, *please* e-mail me. I almost always
-help. Plus, if you tell me where you are having difficulty, I will be
-able to improve the code and documentation for all future users.
-
 In the directory that this file is in, just type
 
     make
@@ -41,13 +30,12 @@ specific executable for 1D through 5D, just type
 
 replacing the 5 with 1, 2, 3, or 4, when appropriate. If you want to
 build an executable for higher dimensions, you'll need to edit the 
-structs.h file and add your own code. I'm sorry about the lack of
-automation with that.
+`structs.h` file and add your own code.
 
 
 ## Usage
 
-Edit the sample.dnd file, making sure to match all coordinate input with
+Edit the `sample.dnd` file, making sure to match all coordinate input with
 the number of dimensions in the problem.
 
 Unix users can then run the desired program as shown:
