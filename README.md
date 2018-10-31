@@ -4,6 +4,20 @@ An arbitrary-dimensional diffusion-limited aggregation simulator.
 See some images and more at (http://markjstock.org/dla-nd/)
 
 
+## Features
+
+`dla-nd` supports the following features
+
+* Automatic, persistent, adaptive 2^D-tree space subdivision
+* Statistically-correct particle motion bias (bulk motion) numerically solves quartic equation each step
+* Stubbornness (Nittman and Stanley's artificial surface tension model)
+* Tunable stickiness and grippiness
+* 2-d or 3-d density field construction
+* Raw, Radiance, and generic OBJ output for particle positions and connectivities
+* PNG and ASCII PGM output for particle locations and density field
+* Restart from an old simulation, or merge multiple simulations using raw .part files 
+
+
 ## Building the software
 
 The Windows binaries are prebuilt and should run on most Windows 
