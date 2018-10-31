@@ -1,6 +1,7 @@
 # dla-nd
 
-An arbitrary-dimensional diffusion-limited aggregation simulator
+An arbitrary-dimensional diffusion-limited aggregation simulator.
+See more at (http://markjstock.org/dla-nd/)
 
 
 ## Building the software
@@ -74,8 +75,6 @@ DLA, all you need is a large-enough computer.
 Thanks for taking the time to check this out. If you are having fun, I'd 
 love to hear from you.
 
-Mark
-mstock@umich.edu
 2005-09-14
 
 
