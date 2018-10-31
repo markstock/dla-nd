@@ -4,8 +4,10 @@
 # cc -O2 -o stickkit stickkit.c -lm
 # /usr/local/bin/i386-mingw32-gcc -O2 -o stickkit.exe stickkit.c -lm
 
-
+# for Linux builds
 CC=gcc
+# try to build on Linux for Windows
+#CC=x86_64-w64-mingw32-gcc
 
 # the neccessary c files
 #CFILES = main.c ndtree.c density.c setup.c writeout.c readin.c
@@ -18,6 +20,7 @@ HFILES = structs.h
 #CFLAGS = -lm -lpng -pg
 #CFLAGS = -lm -lpng -pg -ggdb -Wall
 CFLAGS=-O3 -funroll-loops -ffast-math -Wall -std=c99
+#CFLAGS+=-static
 LIBS=-lm -lpng
 #LIBS=-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -L/Developer/SDKs/MacOSX10.5.sdk/usr/X11/lib -lm -lpng
 
