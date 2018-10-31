@@ -1,7 +1,7 @@
 # dla-nd
 
 An arbitrary-dimensional diffusion-limited aggregation simulator.
-See more at (http://markjstock.org/dla-nd/)
+See some images and more at (http://markjstock.org/dla-nd/)
 
 
 ## Building the software
@@ -64,8 +64,8 @@ directory or your home directory. As a windows novice, this confused me.
 
 ## Advanced use
 
-Feel free to monkey with the code. If you look in the Makefile, and the 
-first part of structs.h, you'll quickly see how to make executables that
+Feel free to monkey with the code. If you look in the `Makefile`, and the 
+first part of `structs.h`, you'll quickly see how to make executables that
 can track ANY number of dimensions. So, if you want to run a 27-dimensional
 DLA, all you need is a large-enough computer.
 
@@ -79,6 +79,8 @@ love to hear from you.
 
 
 ## Change Log
+
+v1.1	Chiral growth
 
 v1.0	Windows and Linux executables included
 
