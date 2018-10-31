@@ -72,14 +72,6 @@ can track ANY number of dimensions. So, if you want to run a 27-dimensional
 DLA, all you need is a large-enough computer.
 
 
-## Conclusion
-
-Thanks for taking the time to check this out. If you are having fun, I'd 
-love to hear from you.
-
-2005-09-14
-
-
 ## Change Log
 
 v1.1	Chiral growth
