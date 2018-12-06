@@ -2,3 +2,5 @@ dla-2d
 dla-3d
 dla-4d
 dla-5d
+*.o
+build
