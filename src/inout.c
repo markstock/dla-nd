@@ -376,7 +376,7 @@ int write_output(sim_ptr sim,cell_ptr top) {
 
 
 /*
- * write a heirarchical description of the particles in cells
+ * write a hierarchical description of the particles in cells
  */
 int write_particle_count(cell_ptr cell){
 
@@ -398,8 +398,7 @@ int write_particle_count(cell_ptr cell){
 
 
 /*
- * Determine the overall bounds of the simulation for purposes of 
- * plotting
+ * Determine the overall bounds of the simulation for purposes of plotting
  */
 int define_plotzone(cell_ptr top, cell_ptr plotzone) {
 
@@ -677,13 +676,6 @@ int write_2d_density (sim_ptr sim,cell_ptr cell,field2_ptr ff,int index){
    char filename[511];
    FILE *outfile;
 
-   // make the full filename, default to png
-   if (sim->write_pgm) {
-      sprintf(filename,"%sdens_%04d.pgm",sim->out_fn_root,index);
-   } else {
-      sprintf(filename,"%sdens_%04d.png",sim->out_fn_root,index);
-   }
-
    // scale ff->rho to unit-maximum
    if (contrast_enhance || maxval < 0.0) {
       for (j=ny-1; j>=0; j--) {
@@ -701,6 +693,7 @@ int write_2d_density (sim_ptr sim,cell_ptr cell,field2_ptr ff,int index){
 
    /* if it's a PGM, write it here, else, write a PNG */
    if (sim->write_pgm) {
+      sprintf(filename,"%sdens_%04d.pgm",sim->out_fn_root,index);
 
       /* open file for writing */
       outfile = fopen(filename,"w");
@@ -737,6 +730,7 @@ int write_2d_density (sim_ptr sim,cell_ptr cell,field2_ptr ff,int index){
       fclose(outfile);
 
    } else {
+      sprintf(filename,"%sdens_%04d.png",sim->out_fn_root,index);
 
       // convert the floating pt "rho" into "png_byte"
       if (sim->image_depth == 8) {
