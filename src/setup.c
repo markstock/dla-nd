@@ -46,7 +46,7 @@ int set_defaults (sim_ptr sim, cell_ptr top) {
    sim->write_dot = FALSE;
    sim->write_rad = FALSE;
    sim->write_obj = FALSE;
-   sim->write_seg = TRUE;
+   sim->write_seg = FALSE;
    sim->write_part = FALSE;
    sim->image_depth = 8;
    sim->out_img_size = 512;
@@ -182,7 +182,7 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
             sim->particle_source = point;
             if (i == argc-DIM) Usage(sim->exectuable_fn,1);
             for (d=0;d<DIM;d++) sim->source_vec[d] = atof(argv[++i]);
-         } else if (strncmp(argv[i], "-rad", 3) == 0) {
+         } else if (strncmp(argv[i], "-pr", 3) == 0) {
             sim->new_part_rad = atof(argv[++i]);
          } else if (strncmp(argv[i], "-pen", 4) == 0) {
             sim->penetration = atof(argv[++i]);
@@ -210,6 +210,15 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
             sim->use_junction_flow = TRUE;
             if (i == argc-1) Usage(sim->exectuable_fn,1);
             sim->junction_coeff = atof(argv[++i]);
+         } else if (strncmp(argv[i], "-rad", 4) == 0) {
+            sim->write_rad = TRUE;
+         } else if (strncmp(argv[i], "-obj", 4) == 0) {
+            sim->write_obj = TRUE;
+         } else if (strncmp(argv[i], "-seg", 4) == 0) {
+            sim->write_seg = TRUE;
+         } else if (strncmp(argv[i], "-res", 4) == 0) {
+            if (i == argc-1) Usage(sim->exectuable_fn,1);
+            sim->out_img_size = atoi(argv[++i]);
          } else if (strncmp(argv[i], "-dot", 4) == 0) {
             sim->write_dot = TRUE;
          } else if (strncmp(argv[i], "-dens", 4) == 0) {
