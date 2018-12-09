@@ -22,16 +22,15 @@
  *
  ***********************************************************/
 
+#pragma once
 
-/* 
- * Here are the includes
- */
+#include "png.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include "png.h"
 
 
 /*
@@ -66,8 +65,8 @@
 /*
  * Pointers to the two types of data structures below
  */
-typedef struct particle_record *particle_ptr;
-typedef struct cell_record *cell_ptr;
+typedef struct particle_record* particle_ptr;
+typedef struct cell_record* cell_ptr;
 
 
 /*
@@ -234,11 +233,13 @@ typedef struct simulation_properties {
    char bdry[DIM][2];		/* boundary types, 0=OPEN, 1=WALL, 2=PERIODIC */
 
    char use_density_field;      /* flags use of density field calculations */
-   //char construct_dens_surface; /* flags construction of an isosurface of density */
    FIELD2 density_field2;	/* initialize struct for density field */
    field2_ptr ff2;
    FIELD3 density_field3;	/* initialize struct for density field */
    field3_ptr ff3;
+
+   int use_dens_zone;		/* use the given density zone, or compute from geometry? */
+   CELL plotzone_dens;		/* zone to plot density over */
 
    /* construction variables */
    FLOAT block[100][2*DIM+1];	/* store data for placing blocks of particles */
@@ -309,30 +310,6 @@ extern int parse_args (int,char**,sim_ptr,cell_ptr);
 extern int Usage (char*,int);
 extern FLOAT*** allocate_3d_array_F (int,int,int);
 extern FLOAT** allocate_2d_array_F (int,int);
-
-// from writeout.c
-extern int write_output(sim_ptr,cell_ptr);
-extern int write_particle_count(cell_ptr);
-extern int write_2d_dots(sim_ptr,cell_ptr,int);
-//extern int write_pgm_density_3d(cell_ptr,field3_ptr,char*);
-//extern int write_2d_density(sim_ptr,cell_ptr,field2_ptr,int);
-extern int put_part_into_array(cell_ptr,cell_ptr,FLOAT**,int,int);
-extern int write_rad(sim_ptr,cell_ptr,char*);
-extern int write_rad_cell(cell_ptr,FILE*,int);
-extern int write_part(cell_ptr,char*);
-extern int write_part_cell(cell_ptr,FILE*);
-
-// from density.c
-//extern int create_density_field_3d(cell_ptr,cell_ptr,field3_ptr);
-//extern int add_particle_to_field_3d(cell_ptr,particle_ptr,field3_ptr);
-//extern int create_density_field_2d(cell_ptr,cell_ptr,cell_ptr,field2_ptr);
-//extern int add_particle_to_field_2d(cell_ptr,particle_ptr,cell_ptr,field2_ptr);
-
-// from readin.c
-extern int read_png (char*, int*, int*, int, FLOAT***, FLOAT, FLOAT, FLOAT***, FLOAT, FLOAT, FLOAT***, FLOAT, FLOAT);
-extern png_byte** allocate_2d_array_pb (int,int,int);
-extern png_byte** allocate_2d_rgb_array_pb (int,int,int);
-extern int free_2d_array_pb (png_byte**);
 
 /* end */
 

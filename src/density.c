@@ -26,12 +26,9 @@
 #include "structs.h"
 
 #if DIM>2
-int create_density_field_3d(cell_ptr,cell_ptr,field3_ptr);
 int add_particle_to_field_3d(cell_ptr,particle_ptr,field3_ptr);
 #endif
-int create_density_field_2d(cell_ptr,cell_ptr,cell_ptr,field2_ptr);
 int add_particle_to_field_2d(cell_ptr,particle_ptr,cell_ptr,field2_ptr);
-// int marching_cubes(cell_ptr,field_ptr);
 
 
 #if DIM>2
@@ -162,10 +159,8 @@ int add_particle_to_field_2d(cell_ptr top, particle_ptr curr,
                              cell_ptr plotzone, field2_ptr ff) {
 
    int i,j,k;
-   int lx = 0;		// sets the local (planar) axes to be 0,2, or x,z
-   // int ly = 2;
+   int lx = 0;		// sets the local (planar) axes to be 0..2, or x..z
    int ly = 1;
-   // int ld = 1;		// sets local depth direction
    int ld = 2;		// sets local depth direction --- not used anymore
    int start[DIM],end[DIM];
    FLOAT rad,radsq,factor;

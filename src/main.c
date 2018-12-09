@@ -47,6 +47,7 @@
 
 
 #include "structs.h"
+#include "inout.h"
 
 int run_sim (sim_ptr,cell_ptr);
 int diffuse_new_particle (sim_ptr,cell_ptr,FLOAT*);

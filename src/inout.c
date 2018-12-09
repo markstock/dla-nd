@@ -23,10 +23,15 @@
  *********************************************************** */
 
 #include "structs.h"
+#include "density.h"
 
 #define png_infopp_NULL (png_infopp)NULL
 #define int_p_NULL (int*)NULL
 
+png_byte** allocate_2d_array_pb (int,int,int);
+png_byte** allocate_2d_rgb_array_pb (int,int,int);
+int free_2d_array_pb (png_byte**);
+int define_plotzone (cell_ptr, cell_ptr);
 int push_bounds_out(cell_ptr, cell_ptr);
 int write_obj(sim_ptr,cell_ptr,char*);
 int write_obj_nodes(cell_ptr,FILE*,int);
@@ -35,6 +40,14 @@ int write_seg(sim_ptr,cell_ptr,char*);
 int write_seg_nodes(cell_ptr,FILE*,int);
 int write_seg_segs(cell_ptr,FILE*,int);
 int write_png(char*,png_byte**,int,int,int);
+int write_particle_count(cell_ptr);
+int write_2d_dots(sim_ptr,cell_ptr,int);
+int put_part_into_array(cell_ptr,cell_ptr,FLOAT**,int,int);
+int write_rad(sim_ptr,cell_ptr,char*);
+int write_rad_cell(cell_ptr,FILE*,int);
+int write_part(cell_ptr,char*);
+int write_part_cell(cell_ptr,FILE*);
+int write_2d_density(sim_ptr,cell_ptr,field2_ptr,int);
 
 
 /*
@@ -271,7 +284,6 @@ int read_png (char *infile, int *nx, int *ny,
 /*
  * allocate memory for a two-dimensional array of png_byte
  */
-/*
 png_byte** allocate_2d_array_pb(int nx, int ny, int depth) {
 
    int i,bytesperpixel;
@@ -287,7 +299,6 @@ png_byte** allocate_2d_array_pb(int nx, int ny, int depth) {
 
    return(array);
 }
-*/
 
 png_byte** allocate_2d_rgb_array_pb(int nx, int ny, int depth) {
 
@@ -356,11 +367,15 @@ int write_output (sim_ptr sim, cell_ptr top) {
    // segmented output
 
    // density field
-/*
    if (sim->use_density_field) {
       // fprintf(stderr,"to write density field\n");
-      // first, determine the plot zone (sufficient to hold all particles)
-      define_plotzone(top,plotzone);
+      cell_ptr plotzone = &(sim->plotzone_dens);
+
+      // if a plot zone was not given compute it here
+      if (!sim->use_dens_zone) {
+        define_plotzone(top,plotzone);
+      }
+
       // then, set the size of each cell in the output image
       sim->ff2->d[0] = (plotzone->max[0]-plotzone->min[0])/sim->ff2->n[0];
       sim->ff2->d[1] = (plotzone->max[1]-plotzone->min[1])/sim->ff2->n[1];
@@ -368,12 +383,13 @@ int write_output (sim_ptr sim, cell_ptr top) {
               plotzone->max[0],plotzone->min[1],plotzone->max[1]);
       fprintf(stdout,"ff2 has n [%d %d] and d [%g %g]\n",sim->ff2->n[0],
               sim->ff2->n[1],sim->ff2->d[0],sim->ff2->d[1]);
+
       // then, fill the ff2 field
       create_density_field_2d(top,top,plotzone,sim->ff2);
+
       // finally, scale and write the image
-      write_2d_density(top,sim->ff2,sim->next_output_index);
+      write_2d_density(sim,top,sim->ff2,sim->next_output_index);
    }
-*/
 
    return(0);
 }
@@ -382,7 +398,7 @@ int write_output (sim_ptr sim, cell_ptr top) {
 /*
  * write a hierarchical description of the particles in cells
  */
-int write_particle_count(cell_ptr cell){
+int write_particle_count (cell_ptr cell){
 
    int i;
 
@@ -404,7 +420,7 @@ int write_particle_count(cell_ptr cell){
 /*
  * Determine the overall bounds of the simulation for purposes of plotting
  */
-int define_plotzone(cell_ptr top, cell_ptr plotzone) {
+int define_plotzone (cell_ptr top, cell_ptr plotzone) {
 
    int i;
    int always_center_on_origin = FALSE;
@@ -462,7 +478,7 @@ int define_plotzone(cell_ptr top, cell_ptr plotzone) {
 /*
  * Determine the overall bounds of the particles
  */
-int push_bounds_out(cell_ptr cell, cell_ptr bounds) {
+int push_bounds_out (cell_ptr cell, cell_ptr bounds) {
 
    int i;
    particle_ptr curr;
@@ -598,7 +614,7 @@ int write_2d_dots (sim_ptr sim,cell_ptr cell,int index){
 /*
  * Write a PGM image of the density field
  */
-int write_pgm_density_3d(cell_ptr cell,field3_ptr ff,char *filename){
+int write_pgm_density_3d (cell_ptr cell,field3_ptr ff,char *filename){
 
    int do_middle_slice = FALSE;
    int i,j,k;
@@ -769,7 +785,7 @@ int write_2d_density (sim_ptr sim,cell_ptr cell,field2_ptr ff,int index){
 /*
  * Put all of the particles in this cell onto the array
  */
-int put_part_into_array(cell_ptr top,cell_ptr cell,FLOAT** array,int nx,int ny){
+int put_part_into_array (cell_ptr top,cell_ptr cell,FLOAT** array,int nx,int ny){
 
    int i,j;
    int xdim,ydim;

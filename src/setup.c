@@ -24,6 +24,8 @@
 
 
 #include "structs.h"
+#include "inout.h"
+
 #include <ctype.h>
 
 
@@ -110,8 +112,9 @@ int set_defaults (sim_ptr sim, cell_ptr top) {
    sim->num_indiv_parts = 0;
    sim->num_read_part = 0;
    sim->num_read_stat = 0;
+
    sim->use_density_field = FALSE;
-   //sim->construct_dens_surface = FALSE;
+   sim->use_dens_zone = FALSE;
 
    sim->out = &sim->out_field;
    sim->ff2 = &sim->density_field2;
@@ -187,8 +190,6 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
             sim->use_bulk_vel = straight;
             if (i == argc-DIM) Usage(sim->exectuable_fn,1);
             for (d=0;d<DIM;d++) sim->bulk_vel[d] = atof(argv[++i]);
-         } else if (strncmp(argv[i], "-dot", 4) == 0) {
-            sim->write_dot = TRUE;
          } else if (strncmp(argv[i], "-stick", 6) == 0) {
             sim->use_stickiness = TRUE;
             if (i == argc-1) Usage(sim->exectuable_fn,1);
@@ -209,6 +210,19 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
             sim->use_junction_flow = TRUE;
             if (i == argc-1) Usage(sim->exectuable_fn,1);
             sim->junction_coeff = atof(argv[++i]);
+         } else if (strncmp(argv[i], "-dot", 4) == 0) {
+            sim->write_dot = TRUE;
+         } else if (strncmp(argv[i], "-dens", 4) == 0) {
+            sim->use_density_field = TRUE;
+         } else if (strncmp(argv[i], "-zone", 4) == 0) {
+            sim->use_dens_zone = TRUE;
+            // do we have enough args?
+            if (i > argc-2*DIM-1) Usage(sim->exectuable_fn,1);
+            // load them in
+            for (d=0;d<DIM;d++) {
+              sim->plotzone_dens.min[d] = atof(argv[++i]);
+              sim->plotzone_dens.max[d] = atof(argv[++i]);
+            }
          } else if (strncmp(argv[i], "-p", 2) == 0) {
             sim->indiv_part[sim->num_indiv_parts][0] = 1;
             j = sim->num_indiv_parts;
@@ -714,22 +728,3 @@ FLOAT** allocate_2d_array_F(int nx, int ny) {
    return(array);
 }
 
-
-/*
- * allocate memory for a two-dimensional array of png_byte
- */
-png_byte** allocate_2d_array_pb(int nx, int ny, int depth) {
-
-   int i,bytesperpixel;
-   png_byte **array;
-
-   if (depth <= 8) bytesperpixel = 1;
-   else bytesperpixel = 2;
-   array = (png_byte **)malloc(ny * sizeof(png_byte *));
-   array[0] = (png_byte *)malloc(bytesperpixel * nx * ny * sizeof(png_byte));
-
-   for (i=1; i<ny; i++)
-      array[i] = array[0] + i * bytesperpixel * nx;
-
-   return(array);
-}
