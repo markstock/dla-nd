@@ -25,13 +25,16 @@
 
 #include "structs.h"
 
+#if DIM>2
 int create_density_field_3d(cell_ptr,cell_ptr,field3_ptr);
 int add_particle_to_field_3d(cell_ptr,particle_ptr,field3_ptr);
+#endif
 int create_density_field_2d(cell_ptr,cell_ptr,cell_ptr,field2_ptr);
 int add_particle_to_field_2d(cell_ptr,particle_ptr,cell_ptr,field2_ptr);
 // int marching_cubes(cell_ptr,field_ptr);
 
 
+#if DIM>2
 /*
  *  Fill the cell_count array in sim with an accurate count of the cells
  */
@@ -117,6 +120,7 @@ int add_particle_to_field_3d(cell_ptr top,particle_ptr curr,field3_ptr ff) {
 
    return(0);
 }
+#endif
 
 
 /*
@@ -154,8 +158,8 @@ int create_density_field_2d(cell_ptr top, cell_ptr curr_cell,
 /*
  *  Add the effect of the particle to the density field
  */
-int add_particle_to_field_2d(cell_ptr top,particle_ptr curr,
-                             cell_ptr plotzone,field2_ptr ff) {
+int add_particle_to_field_2d(cell_ptr top, particle_ptr curr,
+                             cell_ptr plotzone, field2_ptr ff) {
 
    int i,j,k;
    int lx = 0;		// sets the local (planar) axes to be 0,2, or x,z
@@ -187,18 +191,20 @@ int add_particle_to_field_2d(cell_ptr top,particle_ptr curr,
    factor = 1.0/rad;
 
    // find min and max cells affected
-   for (i=0; i<DIM; i++) {
 
-      // define the start and end bounds for each dimension
-      // start[i] = 0.5+(curr->x[i]-rad-top->min[i])/ff->d[i];
-      // end[i] = (curr->x[i]+rad-top->min[i])/ff->d[i] - 0.5;
-      start[i] = 0.5+(curr->x[i] - rad - plotzone->min[i])/ff->d[i];
-      end[i] = (curr->x[i] + rad - plotzone->min[i])/ff->d[i] - 0.5;
+   // define the start and end bounds for each dimension
+   start[lx] = 0.5+(curr->x[lx] - rad - plotzone->min[lx])/ff->d[0];
+   end[lx] = (curr->x[lx] + rad - plotzone->min[lx])/ff->d[0] - 0.5;
 
-      // make sure that these are in bounds!
-      if (start[i] < 0) start[i] = 0;
-      if (end[i] >= ff->n[i]) end[i] = ff->n[i]-1;
-   }
+   // make sure that these are in bounds!
+   if (start[lx] < 0) start[lx] = 0;
+   if (end[lx] >= ff->n[0]) end[lx] = ff->n[0];
+
+   // do same for other axis
+   start[ly] = 0.5+(curr->x[ly] - rad - plotzone->min[ly])/ff->d[1];
+   end[ly] = (curr->x[ly] + rad - plotzone->min[ly])/ff->d[1] - 0.5;
+   if (start[ly] < 0) start[ly] = 0;
+   if (end[ly] >= ff->n[1]) end[ly] = ff->n[1];
 
    // fprintf(stdout,"Adding value in the ranges %d:%d %d:%d\n",start[lx],end[lx],start[ly],end[ly]);
    // fprintf(stdout,"  ff->d is %d:%d\n",ff->d[lx],ff->d[ly]);
