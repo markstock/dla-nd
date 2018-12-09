@@ -114,7 +114,7 @@ int set_defaults (sim_ptr sim, cell_ptr top) {
    sim->num_read_part = 0;
    sim->num_read_stat = 0;
    sim->use_density_field = FALSE;
-   sim->construct_dens_surface = FALSE;
+   //sim->construct_dens_surface = FALSE;
 
    sim->out = &sim->out_field;
    sim->ff2 = &sim->density_field2;
@@ -162,8 +162,6 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
          // if command-line arg is "help", write usage
          if (strncmp(argv[i], "--help", 3) == 0) {
             (void) Usage(sim->exectuable_fn,0);
-         } else if (strncmp(argv[i], "-help", 2) == 0) {
-            (void) Usage(sim->exectuable_fn,0);
          } else if (strncmp(argv[i], "-end", 4) == 0) {
             sim->particle_cnt = atoi(argv[++i]);
          } else if (strncmp(argv[i], "-every", 6) == 0) {
@@ -180,25 +178,16 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
             sim->trim_method = sphere;
             if (i == argc-1) Usage(sim->exectuable_fn,1);
             sim->trim_rad = atof(argv[++i]);
-         } else if (strncmp(argv[i], "-p", 2) == 0) {
-            sim->indiv_part[sim->num_indiv_parts][0] = 1;
-            j = sim->num_indiv_parts;
-            if (i == argc-DIM) Usage(sim->exectuable_fn,1);
-            for (d=0;d<DIM;d++) sim->indiv_part[j][d+1] = atof(argv[++i]);
-            for (d=0;d<DIM;d++) sim->indiv_part[j][d+1+DIM] = 0.0;
-            sim->num_indiv_parts++;
          } else if (strncmp(argv[i], "-sp", 3) == 0) {
             sim->particle_source = point;
             if (i == argc-DIM) Usage(sim->exectuable_fn,1);
             for (d=0;d<DIM;d++) sim->source_vec[d] = atof(argv[++i]);
          } else if (strncmp(argv[i], "-rad", 3) == 0) {
             sim->new_part_rad = atof(argv[++i]);
+         } else if (strncmp(argv[i], "-pen", 4) == 0) {
+            sim->penetration = atof(argv[++i]);
          } else if (strncmp(argv[i], "-vel", 4) == 0) {
             sim->use_bulk_vel = straight;
-            if (i == argc-DIM) Usage(sim->exectuable_fn,1);
-            for (d=0;d<DIM;d++) sim->bulk_vel[d] = atof(argv[++i]);
-         } else if (strncmp(argv[i], "-rotex", 4) == 0) {
-            sim->use_bulk_vel = rotex;
             if (i == argc-DIM) Usage(sim->exectuable_fn,1);
             for (d=0;d<DIM;d++) sim->bulk_vel[d] = atof(argv[++i]);
          } else if (strncmp(argv[i], "-dot", 4) == 0) {
@@ -211,10 +200,27 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
             sim->use_grip = TRUE;
             if (i == argc-1) Usage(sim->exectuable_fn,1);
             sim->grip = atof(argv[++i]);
+         } else if (strncmp(argv[i], "-stub", 5) == 0) {
+            sim->use_stubborn = TRUE;
+            if (i == argc-1) Usage(sim->exectuable_fn,1);
+            sim->stubborn = atoi(argv[++i]);
+         } else if (strncmp(argv[i], "-rotex", 4) == 0) {
+            sim->use_bulk_vel = rotex;
+            if (i == argc-DIM) Usage(sim->exectuable_fn,1);
+            for (d=0;d<DIM;d++) sim->bulk_vel[d] = atof(argv[++i]);
          } else if (strncmp(argv[i], "-junction", 5) == 0) {
             sim->use_junction_flow = TRUE;
             if (i == argc-1) Usage(sim->exectuable_fn,1);
             sim->junction_coeff = atof(argv[++i]);
+         } else if (strncmp(argv[i], "-p", 2) == 0) {
+            sim->indiv_part[sim->num_indiv_parts][0] = 1;
+            j = sim->num_indiv_parts;
+            if (i == argc-DIM) Usage(sim->exectuable_fn,1);
+            for (d=0;d<DIM;d++) sim->indiv_part[j][d+1] = atof(argv[++i]);
+            for (d=0;d<DIM;d++) sim->indiv_part[j][d+1+DIM] = 0.0;
+            sim->num_indiv_parts++;
+         } else if (strncmp(argv[i], "-help", 2) == 0) {
+            (void) Usage(sim->exectuable_fn,0);
 
          } else {
             fprintf(stderr,"Unrecognized argument (%s)\n",argv[i]);
