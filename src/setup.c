@@ -52,9 +52,6 @@ int set_defaults (sim_ptr sim, cell_ptr top) {
    sim->write_stats = TRUE;
    strcpy(sim->stats_file,"stats.dat");
 
-   sim->write_temp = TRUE;
-   strcpy(sim->temp_file,".temp.pnd");
-
    // particle masks
    sim->trim_method = notrim;
    sim->trim_rad = 0.5;
@@ -545,11 +542,6 @@ int read_input_file(sim_ptr sim,cell_ptr top) {
             sim->write_stats = TRUE;
             if (isalnum(token[1][0])) {
                strcpy(sim->stats_file,token[1]);
-            }
-         } else if (strncmp(token[0],"write_temp",10) == 0) {
-            sim->write_temp = TRUE;
-            if (isalnum(token[1][0])) {
-               strcpy(sim->temp_file,token[1]);
             }
          } else if (strncmp(token[0],"output_step",9) == 0) {
             sim->output_step = atoi(token[1]);

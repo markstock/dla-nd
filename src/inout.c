@@ -315,24 +315,25 @@ int free_2d_array_pb(png_byte** array){
 /*
  * Controls writing of output, once decision to write has been made
  */
-int write_output(sim_ptr sim,cell_ptr top) {
+int write_output (sim_ptr sim, cell_ptr top) {
 
    char outfile[511];
    //cell_ptr plotzone = (CELL*)malloc(sizeof(CELL));
 
-   /* actually write the output here */
-   if (sim->write_dot) {
-      write_2d_dots(sim,top,sim->next_output_index);
+   // first, vector formats
+
+   // point-wise output
+   if (sim->write_part) {
+      sprintf(outfile,"%spart%04d.part",sim->out_fn_root,sim->next_output_index);
+      write_part(top,outfile);
    }
+
+   // segmented output
    if (sim->write_rad) {
       //zero_all_masses(top);
       //sum_tipward_mass(top);
       sprintf(outfile,"%spart%04d.rad",sim->out_fn_root,sim->next_output_index);
       write_rad(sim,top,outfile);
-   }
-   if (sim->write_part) {
-      sprintf(outfile,"%spart%04d.part",sim->out_fn_root,sim->next_output_index);
-      write_part(top,outfile);
    }
    if (sim->write_obj) {
       //zero_all_masses(top);
@@ -345,13 +346,16 @@ int write_output(sim_ptr sim,cell_ptr top) {
       write_seg(sim,top,outfile);
    }
 
-   // if we are to write a temporary, replaceable file; but only if it
-   //   wouldn't be written normally
-   if (sim->write_temp && !sim->write_part) {
-      write_part(top,sim->temp_file);
+   // then, raster formats
+
+   // point-wise output
+   if (sim->write_dot) {
+      write_2d_dots(sim,top,sim->next_output_index);
    }
 
-   // create the density field, hopefully more later
+   // segmented output
+
+   // density field
 /*
    if (sim->use_density_field) {
       // fprintf(stderr,"to write density field\n");

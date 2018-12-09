@@ -183,8 +183,6 @@ typedef struct simulation_properties {
    int write_stats;		// write a statistics datafile?
    char stats_file[FNLEN];	// name of the stats datafile
    FILE *statsfp;		// the file pointer
-   int write_temp;		// write a statistics datafile?
-   char temp_file[FNLEN];	// name of the stats datafile
 
    TRIMMER trim_method;		// which, if any, method to trim new segments
    FLOAT trim_rad;		// if sphere or cube, distance to trim

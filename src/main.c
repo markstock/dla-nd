@@ -85,7 +85,7 @@ int main(int argc,char **argv) {
    initialize_system (sim,top);
 
    // Do the time integration
-   run_sim(sim,top);
+   run_sim (sim,top);
 
    fprintf(stderr,"\nDone.\n");
    exit(0);
@@ -141,26 +141,28 @@ int run_sim(sim_ptr sim,cell_ptr top) {
          //sum_tipward_mass(top);
          //fprintf(stdout,"Step %d, next print %g, %d particles within %g radius\n",sim->step,sim->next_output_step,(int)top->mass,sim->overall_rad);
          fflush(stdout);
-         if (sim->step < 1000) {
+         if (sim->step < 2000) {
             next_update += 100;
          } else {
-            next_update = (int)(1.1*(float)next_update);
+            next_update = (int)(1.05*(float)next_update);
          }
       }
+/*
       // write particle count and cell utilization
-      // if (sim->step%10000 == 0) {
-         // fprintf(stdout,"  %d particles\n",top->num);
-         // for (i=0; i<sim->max_levels; i++) sim->cell_count[i] = 0;
-         // count_cells(sim,top);
-         // fprintf(stdout,"  ");
-         // for (i=0; i<sim->max_levels; i++) fprintf(stdout,"%d ",sim->cell_count[i]);
-         // fprintf(stdout,"cells\n  utilization ");
-         // for (i=0; i<sim->max_levels; i++) fprintf(stdout,"%g ",sim->cell_count[i]/pow(8,i));
-         // fprintf(stdout,"\n");
-      // }
-      // if (sim->step%100 == 0) {
-         // fprintf(stdout,"."); fflush(stdout);
-      // }
+      if (sim->step%10000 == 0) {
+         fprintf(stdout,"  %d particles\n",top->num);
+         for (i=0; i<sim->max_levels; i++) sim->cell_count[i] = 0;
+         count_cells(sim,top);
+         fprintf(stdout,"  ");
+         for (i=0; i<sim->max_levels; i++) fprintf(stdout,"%d ",sim->cell_count[i]);
+         fprintf(stdout,"cells\n  utilization ");
+         for (i=0; i<sim->max_levels; i++) fprintf(stdout,"%g ",sim->cell_count[i]/pow(8,i));
+         fprintf(stdout,"\n");
+      }
+      if (sim->step%100 == 0) {
+         fprintf(stdout,"."); fflush(stdout);
+      }
+*/
 
       // check current step vs. next_output_step, write output if necessary
       if (sim->step == sim->next_output_step) {
@@ -173,8 +175,6 @@ int run_sim(sim_ptr sim,cell_ptr top) {
          // write the output
          fprintf(stdout,"\n  writing output step %d\n",sim->next_output_index);
          write_output(sim,top);
-         sim->next_output_step += sim->output_step;
-         sim->next_output_index++;
 
          // write a line to the stats file
          if (sim->write_stats) {
@@ -205,6 +205,8 @@ int run_sim(sim_ptr sim,cell_ptr top) {
          // reset the counters
          sim->total_particles_tried = 0;
          sim->total_steps_taken = 0;
+         sim->next_output_step += sim->output_step;
+         sim->next_output_index++;
 
          // start a new timer
          sim->last_tics = clock();
