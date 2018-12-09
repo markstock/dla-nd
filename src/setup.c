@@ -336,6 +336,23 @@ int initialize_system (sim_ptr sim,cell_ptr top) {
                // ff->rho[i][j][k] = 0.0;
    }
 
+   if (sim->write_3d_dens) {
+#if DIM>2
+      // set the cell sizes
+      for (i=0; i<3; i++) sim->ff3->n[i] = sim->out_img_size;
+      for (i=0; i<3; i++) sim->ff3->d[i] = (top->max[i]-top->min[i])/sim->ff3->n[i];
+
+      // allocate memory for the array
+      sim->ff3->rho = allocate_3d_array_F(sim->ff3->n[0],sim->ff3->n[1],sim->ff3->n[2]);
+
+      // zero the array
+      for (i=0;i<sim->ff3->n[0];i++)
+         for (j=0;j<sim->ff3->n[1];j++)
+            for (int k=0;k<sim->ff3->n[2];k++)
+               sim->ff3->rho[i][j][k] = 0.0;
+#endif
+   }
+
    // fprintf(stdout,"\nStarting with %d particles",top->num);
 
    // and the output file (just dots)

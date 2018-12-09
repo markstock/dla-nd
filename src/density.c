@@ -71,43 +71,48 @@ int create_density_field_3d(cell_ptr top, cell_ptr curr_cell,
 int add_particle_to_field_3d(cell_ptr top,particle_ptr curr,cell_ptr plotzone,field3_ptr ff) {
 
    int i,j,k;
-   int start[3],end[3];
-   FLOAT rad = 2.0*curr->rad;
-   FLOAT radsq = rad*rad;
-   FLOAT factor = 4.0 / (1000000.0*pow(curr->rad,3)*M_PI);
+   int start[3], end[3];
+   FLOAT rad,radsq,factor;
+   //FLOAT factor = 4.0 / (1000000.0*pow(curr->rad,3)*M_PI);
    //FLOAT twopi = M_PI*2.0;
    FLOAT distsqx,distsqy,distsq,dist;
    //FLOAT dummy = 0.0;
 
+   // make sure radius is large enough!
+   if (curr->rad < ff->d[0]) rad = 2.0*ff->d[0];
+   else rad = 2.0*curr->rad;
    // fprintf(stdout,"rad is %g\n",rad);
+   radsq = rad*rad;
 
    // make them darker
-   factor *= pow(top->max[0]-top->min[0],2);
+   //factor *= pow(top->max[0]-top->min[0],2);
    // rad *= 2.;
    // radsq = rad*rad;
    // factor = 4.0 / (1000000.0*pow(curr->rad,3)*M_PI);
+   factor = 1.0/rad;
 
    // find min and max cells affected
    for (i=0; i<3; i++) {
-      start[i] = 0.5+(curr->x[i]-rad-top->min[i])/ff->d[i];
-      end[i] = (curr->x[i]+rad-top->min[i])/ff->d[i] - 0.5;
+      start[i] = 0.5 + (curr->x[i] - rad - plotzone->min[i]) / ff->d[i];
+      end[i] = (curr->x[i] + rad - plotzone->min[i]) / ff->d[i] - 0.5;
       if (start[i] < 0) start[i] = 0;
       if (end[i] >= ff->n[i]) end[i] = ff->n[i]-1;
    }
-   // fprintf(stdout,"Adding value in the ranges %d:%d %d:%d %d:%d\n",start[0],end[0],start[1],end[1],start[2],end[2]);
+   //fprintf(stdout,"Adding value in the ranges %d:%d %d:%d %d:%d\n",start[0],end[0],start[1],end[1],start[2],end[2]);
 
    // apply spherical kernel across that range
    for (i=start[0]; i<=end[0]; i++) {
-      distsqx = pow( curr->x[0] - (top->min[0] + ff->d[0]*(0.5+(FLOAT)i)) , 2);
+      distsqx = pow( curr->x[0] - (plotzone->min[0] + ff->d[0]*(0.5+(FLOAT)i)) , 2);
       // fprintf(stdout,"  i %d, dx %g\n",i,sqrt(distsqx));
       for (j=start[1]; j<=end[1]; j++) {
-         distsqy = distsqx + pow( curr->x[1] - (top->min[1] + ff->d[1]*(0.5+(FLOAT)j)) , 2);
+         distsqy = distsqx + pow( curr->x[1] - (plotzone->min[1] + ff->d[1]*(0.5+(FLOAT)j)) , 2);
          for (k=start[2]; k<=end[2]; k++) {
-            distsq = distsqy + pow( curr->x[2] - (top->min[2] + ff->d[2]*(0.5+(FLOAT)k)) , 2);;
+            distsq = distsqy + pow( curr->x[2] - (plotzone->min[2] + ff->d[2]*(0.5+(FLOAT)k)) , 2);;
+            //fprintf(stdout,"%d %d %d is at rad %g, within %g\n",i,j,k,distsq,rad);
             if (distsq < radsq) {
                dist = sqrt(distsq);
-               // fprintf(stdout,"%d %d %d is at rad %g, within %g\n",i,j,k,dist,rad);
-               // fprintf(stdout,"      adding %g\n",factor*(1.0+cos(M_PI*dist/rad)));
+               //fprintf(stdout,"%d %d %d is at rad %g, within %g\n",i,j,k,dist,rad);
+               //fprintf(stdout,"      adding %g\n",factor*(1.0+cos(M_PI*dist/rad)));
                ff->rho[i][j][k] += factor * (1.0+cos(M_PI*dist/rad));
                // dummy += factor * (1.0+cos(M_PI*dist/rad));
             }

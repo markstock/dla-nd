@@ -48,6 +48,7 @@ int write_rad_cell(cell_ptr,FILE*,int);
 int write_part(cell_ptr,char*);
 int write_part_cell(cell_ptr,FILE*);
 int write_2d_density(sim_ptr,cell_ptr,field2_ptr,int);
+int write_3d_density(sim_ptr,cell_ptr,field3_ptr,int);
 
 
 /*
@@ -411,7 +412,7 @@ int write_output (sim_ptr sim, cell_ptr top) {
       create_density_field_3d(top,top,plotzone,sim->ff3);
 
       // finally, scale and write the image
-      //write_2d_density(sim,top,sim->ff3,sim->next_output_index);
+      write_3d_density(sim,top,sim->ff3,sim->next_output_index);
 #else
       fprintf(stderr,"  Not writing 3D density field because sim is not 3+ dimensional.\n");
 #endif
@@ -527,7 +528,7 @@ int push_bounds_out (cell_ptr cell, cell_ptr bounds) {
 
 
 /*
- * Write a PGM image of the points projected onto the xy-plane
+ * Write a raster image of the points projected onto the xy-plane
  */
 int write_2d_dots (sim_ptr sim,cell_ptr cell,int index){
 
@@ -638,69 +639,103 @@ int write_2d_dots (sim_ptr sim,cell_ptr cell,int index){
 
 
 /*
- * Write a PGM image of the density field
+ * Write a series of raster images of the density field
  */
-int write_pgm_density_3d (cell_ptr cell,field3_ptr ff,char *filename){
+int write_3d_density (sim_ptr sim,cell_ptr cell,field3_ptr ff,int index){
 
-   int do_middle_slice = FALSE;
+   int contrast_enhance = TRUE;
    int i,j,k;
-   int kindex = ff->n[1]/2;
    int nx = ff->n[0];
-   int ny = ff->n[2];
-   FLOAT scale = 2.0;
-   FLOAT **array = (FLOAT **)malloc(nx * sizeof(FLOAT *));
+   int ny = ff->n[1];
+   static FLOAT maxval = -1.0;
+   //FLOAT scale = 1.0;
    int printval;
+   char filebase[511],filename[511];
    FILE *outfile;
 
-   /* allocate space for 2D array */
-   array[0] = (FLOAT *)malloc(nx * ny * sizeof(FLOAT));
-   for (i=1; i<nx; i++)
-      array[i] = array[0] + i * ny;
+   // scale ff->rho to unit-maximum
+   if (contrast_enhance || maxval < 0.0) {
+      for (i=0;i<ff->n[0];i++)
+         for (j=0;j<ff->n[1];j++)
+            for (k=0;k<ff->n[2];k++)
+               if (ff->rho[i][j][k] > maxval) maxval = ff->rho[i][j][k];
 
-   /* zero the array */
-   for (j=ny-1; j>=0; j--)
-      for (i=0; i<nx; i++)
-         array[i][j] = 0.0;
+      // allow larger areas to be white
+      maxval *= 0.8;
+   }
+   // fprintf(stdout,"maxval is %g\n",maxval);
 
-   /* fill the array */
-   for (i=0; i<nx; i++)
-      for (j=0; j<ny; j++) {
-         if (do_middle_slice) array[i][j] = ff->rho[i][kindex][j];
-         else {
-            for (k=0; k<ff->n[1]; k++)
-               array[i][j] += ff->rho[i][k][j];
-            array[i][j] *= 0.0025;
+   // loop over the z axis (probably slowest memory access)
+   for (k=0; k<ff->n[2]; k++) {
+
+      sprintf(filebase, "%sslice_%04d_%04d", sim->out_fn_root, index, k);
+
+   /* if it's a PGM, write it here, else, write a PNG */
+   if (sim->write_pgm) {
+      sprintf(filename,"%s.pgm",filebase);
+
+      /* open file for writing */
+      outfile = fopen(filename,"w");
+      if (outfile==NULL) {
+         fprintf(stderr,"Could not open output file %s\n",filename);
+         fflush(stderr);
+         exit(0);
+      }
+
+      /* plot a y-plane */
+      if (sim->image_depth == 8) {
+         fprintf(outfile,"P2\n%d %d\n%d\n",nx,ny,255);
+         for (j=ny-1; j>=0; j--) {
+            for (i=0; i<nx; i++) {
+               printval = (int)(256.0*ff->rho[i][j][k]/maxval);
+               if (printval<0) printval = 0;
+               if (printval>255) printval = 255;
+               fprintf(outfile,"%d\n",printval);
+            }
+         }
+      } else {
+         fprintf(outfile,"P2\n%d %d\n%d\n",nx,ny,65535);
+         for (j=ny-1; j>=0; j--) {
+            for (i=0; i<nx; i++) {
+               printval = (int)(65536.0*ff->rho[i][j][k]/maxval);
+               if (printval<0) printval = 0;
+               if (printval>65535) printval = 65535;
+               fprintf(outfile,"%d\n",printval);
+            }
          }
       }
 
-   // scale the array?
+      /* close file */
+      fclose(outfile);
 
+   } else {
+      sprintf(filename,"%s.png",filebase);
 
-   /* open file for writing */
-   outfile = fopen(filename,"w");
-   if (outfile==NULL) {
-      fprintf(stderr,"Could not open output file %s\n",filename);
-      fflush(stderr);
-      exit(0);
-   }
-
-   /* plot a y-plane */
-   fprintf(outfile,"P2\n%d %d\n%d\n",nx,ny,255);
-   for (j=ny-1; j>=0; j--) {
-      for (i=0; i<nx; i++) {
-         printval = (int)(256.0*array[i][j]*scale);
-         if (printval<0) printval = 0;
-         if (printval>255) printval = 255;
-         fprintf(outfile,"%d\n",printval);
+      // convert the floating pt "rho" into "png_byte"
+      if (sim->image_depth == 8) {
+         for (j=ny-1; j>=0; j--) {
+            for (i=0; i<nx; i++) {
+               printval = (int)(256*ff->rho[i][j][k]/maxval);
+               if (printval<0) printval = 0;
+               if (printval>255) printval = 255;
+               sim->image[ny-1-j][i] = (png_byte)printval;
+            }
+         }
+         write_png(filename,sim->image,nx,ny,8);
+      } else {
+         for (j=ny-1; j>=0; j--) {
+            for (i=0; i<nx; i++) {
+               printval = (int)(65536*ff->rho[i][j][k]/maxval);
+               if (printval<0) printval = 0;
+               if (printval>65535) printval = 65535;
+               sim->image[ny-1-j][2*i] = (png_byte)(printval/256);
+               sim->image[ny-1-j][2*i+1] = (png_byte)(printval%256);
+            }
+         }
+         write_png(filename,sim->image,nx,ny,16);
       }
    }
-
-   /* close file */
-   fclose(outfile);
-
-   /* free memory from 2D array! */
-   free(array[0]);
-   free(array);
+   } // end loop over k
 
    /* if all went well, return zero */
    return(0);
@@ -708,7 +743,7 @@ int write_pgm_density_3d (cell_ptr cell,field3_ptr ff,char *filename){
 
 
 /*
- * Write a PGM image of the density field
+ * Write a raster image of the density field
  */
 int write_2d_density (sim_ptr sim,cell_ptr cell,field2_ptr ff,int index){
 
