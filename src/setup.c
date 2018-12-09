@@ -226,6 +226,7 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
             sim->write_2d_dens = TRUE;
          } else if (strncmp(argv[i], "-slices", 4) == 0) {
             sim->write_3d_dens = TRUE;
+            sim->out_img_size = 64;
          } else if (strncmp(argv[i], "-zone", 4) == 0) {
             sim->use_dens_zone = TRUE;
             // do we have enough args?
