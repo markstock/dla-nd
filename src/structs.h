@@ -236,7 +236,7 @@ typedef struct simulation_properties {
    char bdry[DIM][2];		/* boundary types, 0=OPEN, 1=WALL, 2=PERIODIC */
 
    char use_density_field;      /* flags use of density field calculations */
-   char construct_dens_surface; /* flags construction of an isosurface of density */
+   //char construct_dens_surface; /* flags construction of an isosurface of density */
    FIELD2 density_field2;	/* initialize struct for density field */
    field2_ptr ff2;
    FIELD3 density_field3;	/* initialize struct for density field */
