@@ -398,7 +398,7 @@ int write_output (sim_ptr sim, cell_ptr top) {
       if (!sim->use_dens_zone) define_plotzone(top,plotzone);
 
       // then, set the size of each cell in the output image
-      for (int i=0; i<DIM; ++i) sim->ff3->d[i] = (plotzone->max[i]-plotzone->min[i]) / sim->ff3->n[i];
+      for (int i=0; i<3; ++i) sim->ff3->d[i] = (plotzone->max[i]-plotzone->min[i]) / sim->ff3->n[i];
       fprintf(stdout,"plotzone is [%g %g] [%g %g] [%g %g]\n",
               plotzone->min[0], plotzone->max[0],
               plotzone->min[1], plotzone->max[1],
