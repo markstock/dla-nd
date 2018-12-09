@@ -14,8 +14,8 @@ CC=x86_64-w64-mingw32-gcc
 # the neccessary c files
 #CFILES = main.c ndtree.c density.c setup.c writeout.c readin.c
 #CFILES = main.c ndtree.c setup.c writeout.c readin.c
-CFILES = main.c ndtree.c setup.c inout.c
-HFILES = structs.h
+CFILES = main.c ndtree.c setup.c inout.c density.c
+HFILES = structs.h density.h inout.h
 
 # To make a normal version 
 #CFLAGS = -lm -lpng -O1 -funroll-loops
