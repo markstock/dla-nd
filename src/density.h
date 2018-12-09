@@ -26,7 +26,7 @@
 
 #include "structs.h"
 
-#if DIM>2
+#if (DIM > 2)
 int create_density_field_3d(cell_ptr,cell_ptr,field3_ptr);
 #endif
 int create_density_field_2d(cell_ptr,cell_ptr,cell_ptr,field2_ptr);
