@@ -1,5 +1,7 @@
 # Makefile for dla-nd, an arbitrary-dimensional particle system
 #
+# Will cross-compile Windows binaries on a Linux host
+#
 # Eventually support building win, mac, or Linux executables
 # cc -O2 -o stickkit stickkit.c -lm
 # /usr/local/bin/i386-mingw32-gcc -O2 -o stickkit.exe stickkit.c -lm
@@ -19,37 +21,37 @@ HFILES = structs.h
 #CFLAGS = -lm -lpng -O1 -funroll-loops
 #CFLAGS = -lm -lpng -pg
 #CFLAGS = -lm -lpng -pg -ggdb -Wall
-CFLAGS=-O3 -funroll-loops -ffast-math -Wall -std=c99
+#CFLAGS=-O3 -funroll-loops -ffast-math -Wall -std=c99
+CFLAGS=-O3 -Wall -std=c99 -march=core2 -mtune=haswell
 CFLAGS+=-static
 LIBS=-lm -lpng -lz
 #LIBS=-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -L/Developer/SDKs/MacOSX10.5.sdk/usr/X11/lib -lm -lpng
 
 
-all: dla-2d dla-3d dla-4d
-all: dla-3d
+all: dla-2d.exe dla-3d.exe dla-4d.exe
 
-dla-1d: $(CFILES) $(HFILES) Makefile
-	$(CC) -o dla-1d -DDIM=1 -DNCHILD=2 $(CFLAGS) $(CFILES) $(LIBS)
+dla-1d.exe: $(CFILES) $(HFILES)
+	$(CC) -o $@ -DDIM=1 -DNCHILD=2 $(CFLAGS) $(CFILES) $(LIBS)
 	@echo "dla-1d made"
 
-dla-2d: $(CFILES) $(HFILES) Makefile
-	$(CC) -o dla-2d -DDIM=2 -DNCHILD=4 $(CFLAGS) $(CFILES) $(LIBS)
+dla-2d.exe: $(CFILES) $(HFILES)
+	$(CC) -o $@ -DDIM=2 -DNCHILD=4 $(CFLAGS) $(CFILES) $(LIBS)
 	@echo "dla-2d made"
 
-dla-3d: $(CFILES) $(HFILES) Makefile
-	$(CC) -o dla-3d -DDIM=3 -DNCHILD=8 $(CFLAGS) $(CFILES) $(LIBS)
+dla-3d.exe: $(CFILES) $(HFILES)
+	$(CC) -o $@ -DDIM=3 -DNCHILD=8 $(CFLAGS) $(CFILES) $(LIBS)
 	@echo "dla-3d made"
 
-dla-4d: $(CFILES) $(HFILES) Makefile
-	$(CC) -o dla-4d -DDIM=4 -DNCHILD=16 $(CFLAGS) $(CFILES) $(LIBS)
+dla-4d.exe: $(CFILES) $(HFILES)
+	$(CC) -o $@ -DDIM=4 -DNCHILD=16 $(CFLAGS) $(CFILES) $(LIBS)
 	@echo "dla-4d made"
 
-dla-5d: $(CFILES) $(HFILES) Makefile
-	$(CC) -o dla-5d -DDIM=5 -DNCHILD=32 $(CFLAGS) $(CFILES) $(LIBS)
+dla-5d.exe: $(CFILES) $(HFILES)
+	$(CC) -o $@ -DDIM=5 -DNCHILD=32 $(CFLAGS) $(CFILES) $(LIBS)
 	@echo "dla-5d made"
 
 lint:
 	lint -abchp $(CFILES)
 
 clean:
-	rm -f *.o *.a gmon* a.out dla-?d
+	rm -f *.o *.a gmon* a.out dla-?d.exe dla-?d
