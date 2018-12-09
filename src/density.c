@@ -26,7 +26,7 @@
 #include "structs.h"
 
 #if DIM>2
-int add_particle_to_field_3d(cell_ptr,particle_ptr,field3_ptr);
+int add_particle_to_field_3d(cell_ptr,particle_ptr,cell_ptr,field3_ptr);
 #endif
 int add_particle_to_field_2d(cell_ptr,particle_ptr,cell_ptr,field2_ptr);
 
@@ -35,7 +35,8 @@ int add_particle_to_field_2d(cell_ptr,particle_ptr,cell_ptr,field2_ptr);
 /*
  *  Fill the cell_count array in sim with an accurate count of the cells
  */
-int create_density_field_3d(cell_ptr top,cell_ptr curr_cell,field3_ptr ff) {
+int create_density_field_3d(cell_ptr top, cell_ptr curr_cell,
+                            cell_ptr plotzone, field3_ptr ff) {
 
    int i,j,k;
    particle_ptr curr;
@@ -51,14 +52,14 @@ int create_density_field_3d(cell_ptr top,cell_ptr curr_cell,field3_ptr ff) {
    // add all particles in this cell
    curr = curr_cell->first;
    while (curr) {
-      add_particle_to_field_3d(top,curr,ff);
+      add_particle_to_field_3d(top,curr,plotzone,ff);
       curr = curr->next;
    }
 
    // or add all particles from sublevels
    if (curr_cell->has_subcells)
       for (i=0;i<NCHILD;i++)
-         create_density_field_3d(top,curr_cell->s[i],ff);
+         create_density_field_3d(top,curr_cell->s[i],plotzone,ff);
 
    return(0);
 }
@@ -67,7 +68,7 @@ int create_density_field_3d(cell_ptr top,cell_ptr curr_cell,field3_ptr ff) {
 /*
  *  Add the effect of the particle to the density field
  */
-int add_particle_to_field_3d(cell_ptr top,particle_ptr curr,field3_ptr ff) {
+int add_particle_to_field_3d(cell_ptr top,particle_ptr curr,cell_ptr plotzone,field3_ptr ff) {
 
    int i,j,k;
    int start[3],end[3];

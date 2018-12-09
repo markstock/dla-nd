@@ -113,7 +113,8 @@ int set_defaults (sim_ptr sim, cell_ptr top) {
    sim->num_read_part = 0;
    sim->num_read_stat = 0;
 
-   sim->use_density_field = FALSE;
+   sim->write_2d_dens = FALSE;
+   sim->write_3d_dens = FALSE;
    sim->use_dens_zone = FALSE;
 
    sim->out = &sim->out_field;
@@ -222,7 +223,9 @@ int parse_args (int argc,char **argv,sim_ptr sim,cell_ptr top) {
          } else if (strncmp(argv[i], "-dot", 4) == 0) {
             sim->write_dot = TRUE;
          } else if (strncmp(argv[i], "-dens", 4) == 0) {
-            sim->use_density_field = TRUE;
+            sim->write_2d_dens = TRUE;
+         } else if (strncmp(argv[i], "-slices", 4) == 0) {
+            sim->write_3d_dens = TRUE;
          } else if (strncmp(argv[i], "-zone", 4) == 0) {
             sim->use_dens_zone = TRUE;
             // do we have enough args?
@@ -314,7 +317,7 @@ int initialize_system (sim_ptr sim,cell_ptr top) {
 
    // -------------------------------------------------------------------------
 
-   if (sim->use_density_field) {
+   if (sim->write_2d_dens) {
       // set the cell sizes
       for (i=0; i<2; i++) sim->ff2->n[i] = sim->out_img_size;
       for (i=0; i<2; i++) sim->ff2->d[i] = (top->max[i]-top->min[i])/sim->ff2->n[i];
@@ -630,11 +633,11 @@ int read_input_file(sim_ptr sim,cell_ptr top) {
             // sim->ff3->n[0] = atoi(token[1]);
             // sim->ff3->n[1] = atoi(token[1]);
             // sim->ff3->n[2] = atoi(token[1]);
-            // sim->use_density_field = TRUE;
+            // sim->write_2d_dens = TRUE;
             if (strncmp(token[1],"yes",1) == 0)
-               sim->use_density_field = TRUE;
+               sim->write_2d_dens = TRUE;
             else
-               sim->use_density_field = FALSE;
+               sim->write_2d_dens = FALSE;
          } else if (strncmp(token[0],"grip",4) == 0) {
             sim->use_grip = TRUE;
             sim->grip = atof(token[1]);

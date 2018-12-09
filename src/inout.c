@@ -357,24 +357,20 @@ int write_output (sim_ptr sim, cell_ptr top) {
       write_seg(sim,top,outfile);
    }
 
-   // then, raster formats
+   // then, 2d raster formats
 
    // point-wise output
    if (sim->write_dot) {
       write_2d_dots(sim,top,sim->next_output_index);
    }
 
-   // segmented output
-
    // density field
-   if (sim->use_density_field) {
+   if (sim->write_2d_dens) {
       // fprintf(stderr,"to write density field\n");
       cell_ptr plotzone = &(sim->plotzone_dens);
 
       // if a plot zone was not given compute it here
-      if (!sim->use_dens_zone) {
-        define_plotzone(top,plotzone);
-      }
+      if (!sim->use_dens_zone) define_plotzone(top,plotzone);
 
       // then, set the size of each cell in the output image
       sim->ff2->d[0] = (plotzone->max[0]-plotzone->min[0])/sim->ff2->n[0];
@@ -389,6 +385,36 @@ int write_output (sim_ptr sim, cell_ptr top) {
 
       // finally, scale and write the image
       write_2d_density(sim,top,sim->ff2,sim->next_output_index);
+   }
+
+   // finally, 3d raster formats
+
+   if (sim->write_3d_dens) {
+#if (DIM > 2)
+      // fprintf(stderr,"to write density field\n");
+      cell_ptr plotzone = &(sim->plotzone_dens);
+
+      // if a plot zone was not given compute it here
+      if (!sim->use_dens_zone) define_plotzone(top,plotzone);
+
+      // then, set the size of each cell in the output image
+      for (int i=0; i<DIM; ++i) sim->ff3->d[i] = (plotzone->max[i]-plotzone->min[i]) / sim->ff3->n[i];
+      fprintf(stdout,"plotzone is [%g %g] [%g %g] [%g %g]\n",
+              plotzone->min[0], plotzone->max[0],
+              plotzone->min[1], plotzone->max[1],
+              plotzone->min[2], plotzone->max[2]);
+      fprintf(stdout,"ff3 has n [%d %d %d] and d [%g %g %g]\n",
+              sim->ff3->n[0], sim->ff3->n[1], sim->ff3->n[2],
+              sim->ff3->d[0], sim->ff3->d[1], sim->ff3->d[2]);
+
+      // then, fill the ff3 field
+      create_density_field_3d(top,top,plotzone,sim->ff3);
+
+      // finally, scale and write the image
+      //write_2d_density(sim,top,sim->ff3,sim->next_output_index);
+#else
+      fprintf(stderr,"  Not writing 3D density field because sim is not 3+ dimensional.\n");
+#endif
    }
 
    return(0);
