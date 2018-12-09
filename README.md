@@ -1,11 +1,7 @@
 # dla-nd
-
 An arbitrary-dimensional diffusion-limited aggregation simulator.
-See some images and more at (http://markjstock.org/dla-nd/)
-
 
 ## Features
-
 `dla-nd` supports the following features
 
 * Automatic, persistent, adaptive 2^D-tree space subdivision
@@ -17,62 +13,45 @@ See some images and more at (http://markjstock.org/dla-nd/)
 * PNG and ASCII PGM output for particle locations and density field
 * Restart from an old simulation, or merge multiple simulations using raw .part files 
 
+See some images and more at [the old homepage](http://markjstock.org/dla-nd/).
 
-## Building the software
-In the directory that this file is in, just type
+## Compilation
+This software uses the CMake build system, which is available on Windows, OSX, and Linux. The only external dependency is libpng, which is usually installed on most systems. If not, you can get both dependencies with (Red Hat/Fedora, Debian/Ubuntu, OSX/brew):
 
+    sudo dnf install cmake libpng-devel
+    sudo apt-get install cmake libpng-dev
+    brew install cmake libpng
+
+Once that's settled, from the directory with this README, run:
+
+    mkdir build
+    cd build
+    cmake -DCMAKE_BUILD_TYPE=Release
     make
 
-and several binary executables will be made. If you want to build a 
-specific executable for 1D through 5D, just type
+and several binary executables will be made. If you want to build a specific executable for 1D through 5D, just ask for it directly:
 
-    make dla-5d
-
-replacing the 5 with 1, 2, 3, or 4, when appropriate. If you want to
-build an executable for higher dimensions, you'll need to edit the 
-`structs.h` file and add your own code.
-
+    make dla-3d
 
 ## Usage
+You no longer need to use an input file to run dla-nd, *but* I haven't documented the options well. See the `setup.c` file for those. But to get started with some fun stuff, try:
 
-Edit the `sample.dnd` file, making sure to match all coordinate input with
-the number of dimensions in the problem.
+    dla-2d -p 0 0 -every 1000 -end 100000 -zone -2 2 -2 2 -dens -res 1000
 
-Unix users can then run the desired program as shown:
+This will run a 2D sim which starts with a single particle at 0,0, writes a 1000x1000 pixel PNG image out every 1000 steps, in which the particles are rendered onto a density field that spans -2..2 in x and y.
 
-    dla-2d sample.dnd
-    dla-2d < sample.dnd
+    dla-3d -p 0 0 0 -every 10000 -end 100000 -zone -1 1 -1 1 -1 1 -slices -res 200 -seg
 
-Windows users have several options. You can drag the .dnd file onto the
-appropriate .exe file, whereupon the output files will either appear in
-the current working directory, or your home directory (which in my
-case was C:\Documents and Settings\mstock).
+The above command will perform a similar job, but will write 200 PNG files every 10000 steps (slices) and also write an OBJ-like "seg" file containing the vector geometry. This `parts0001.seg` file can be manipulated with my [stickkit](https://github.com/markstock/stickkit) program.
 
-You can also run "cmd" to enter the DOS-like command prompt. From there,
-you can run 
+Windows users can also run "cmd" to enter the DOS-like command prompt. From there, you can run any of the commands above.
 
-    dla-2d.exe sample.dnd
-
-Lastly, you can download and install MSYS, a Unix-like environment,
-and run the program from within MSYS using
-
-    dla-2d.exe sample.dnd
-    dla-2d.exe < sample.dnd
-
-If your .dnd file is set up to read in another file, you need to make
-sure that the other file is in either (or both) your current working 
-directory or your home directory. As a windows novice, this confused me.
-
-
-## Advanced use
-
-Feel free to monkey with the code. If you look in the `Makefile`, and the 
-first part of `structs.h`, you'll quickly see how to make executables that
-can track ANY number of dimensions. So, if you want to run a 27-dimensional
-DLA, all you need is a large-enough computer.
-
+## Options
+To do: fill this out with descriptions of `-grip` and `-stick` and bulk motion, etc. Maybe some images, too.
 
 ## Change Log
+
+v1.2	2D and 3D density output supported, more command-line options supported
 
 v1.1	Chiral growth
 
@@ -96,3 +75,4 @@ v0.7	added libpng support, removed GIF support and related system calls
 
 v0.6	upgraded dla3d to dla-nd
 	other minor improvements
+
