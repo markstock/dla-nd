@@ -74,9 +74,9 @@ int add_particle_to_field_3d(cell_ptr top,particle_ptr curr,field3_ptr ff) {
    FLOAT rad = 2.0*curr->rad;
    FLOAT radsq = rad*rad;
    FLOAT factor = 4.0 / (1000000.0*pow(curr->rad,3)*M_PI);
-   FLOAT twopi = M_PI*2.0;
+   //FLOAT twopi = M_PI*2.0;
    FLOAT distsqx,distsqy,distsq,dist;
-   FLOAT dummy = 0.0;
+   //FLOAT dummy = 0.0;
 
    // fprintf(stdout,"rad is %g\n",rad);
 
@@ -126,7 +126,7 @@ int add_particle_to_field_3d(cell_ptr top,particle_ptr curr,field3_ptr ff) {
 int create_density_field_2d(cell_ptr top, cell_ptr curr_cell,
                             cell_ptr plotzone, field2_ptr ff) {
 
-   int i,j,k;
+   int i,j;//,k;
    particle_ptr curr;
 
    // if this level is top, zero the field values and begin
@@ -158,18 +158,18 @@ int create_density_field_2d(cell_ptr top, cell_ptr curr_cell,
 int add_particle_to_field_2d(cell_ptr top, particle_ptr curr,
                              cell_ptr plotzone, field2_ptr ff) {
 
-   int i,j,k;
+   int i,j;//,k;
    int lx = 0;		// sets the local (planar) axes to be 0..2, or x..z
    int ly = 1;
-   int ld = 2;		// sets local depth direction --- not used anymore
+   //int ld = 2;		// sets local depth direction --- not used anymore
    int start[DIM],end[DIM];
    FLOAT rad,radsq,factor;
    // FLOAT rad = 2.0*curr->rad;
    // FLOAT radsq = rad*rad;
    // FLOAT factor = 4.0 / (1000000.0*pow(curr->rad,3)*M_PI);
    // FLOAT factor = 4.0 * M_PI / pow(curr->rad,2);
-   FLOAT twopi = M_PI*2.0;
-   FLOAT distsqx,distsqy,distsq,dist;
+   //FLOAT twopi = M_PI*2.0;
+   FLOAT distsqx,distsq,dist;//distsqy;
 
    // scale factor due to ???
    // factor *= pow(top->max[0]-top->min[0],2);
@@ -193,13 +193,13 @@ int add_particle_to_field_2d(cell_ptr top, particle_ptr curr,
 
    // make sure that these are in bounds!
    if (start[lx] < 0) start[lx] = 0;
-   if (end[lx] >= ff->n[0]) end[lx] = ff->n[0];
+   if (end[lx] >= ff->n[0]) end[lx] = ff->n[0]-1;
 
    // do same for other axis
    start[ly] = 0.5+(curr->x[ly] - rad - plotzone->min[ly])/ff->d[1];
    end[ly] = (curr->x[ly] + rad - plotzone->min[ly])/ff->d[1] - 0.5;
    if (start[ly] < 0) start[ly] = 0;
-   if (end[ly] >= ff->n[1]) end[ly] = ff->n[1];
+   if (end[ly] >= ff->n[1]) end[ly] = ff->n[1]-1;
 
    // fprintf(stdout,"Adding value in the ranges %d:%d %d:%d\n",start[lx],end[lx],start[ly],end[ly]);
    // fprintf(stdout,"  ff->d is %d:%d\n",ff->d[lx],ff->d[ly]);
