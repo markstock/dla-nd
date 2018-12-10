@@ -2,7 +2,7 @@
  *
  *  main.c - Arbitrary-dimensional diffusion-limited aggregation
  *
- *  Copyright (C) 2000-15  Mark J. Stock, mstock@umich.edu
+ *  Copyright (C) 2000-18  Mark J. Stock, mstock@umich.edu
  * 
  *  This file is part of dla-nd.
  *
@@ -20,29 +20,6 @@
  *  along with dla-nd; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * 
- * Revision information
- *
- * 2003-12-03 MJS  v0.0  copied part3d source, begin work
- * 2003-12-04 MJS  v0.1  improved order over O(N^2)
- * 2003-12-04 MJS  v0.2  new output, correct aggregation
- * 2004-01-20 MJS  v0.3  added directionality, reorganized
- * 2004-02-27 MJS  v0.4  corrected directionality, added bias,
- *                       added stickiness
- * 2004-08-26 MJS  v0.5  added grip, reorganized parameters,
- *                       added obj output
- * 2004-08-31 MJS  v0.6  upgraded to arbitrary dimensions
- * 2005-02-24 MJS  v0.7  native png output, adaptive trees, no gifs
- * 2005-02-26 MJS  v0.8  accurate bulk motion, experimental rotex
- * 2005-09-02 MJS  v0.9  timing, stats and temp output, much faster
- * 2005-09-14 MJS  v1.0  windows version, corrected stubbornness
- * 2006-04-06 MJS  v1.1  better chiral growth
- * 2008-03-30 MJS  v1.2  support for "irradiation planes" and other
- *                       enhancements to allow Lichtenberg figures
- * 2008-10-18 MJS  v1.3  support file-input options on command-line
- * 2014-03-05 MJS  v1.4  multiple methods for segment rejection
- * 2015-01-01 MJS  v1.5  smooth junctions each step
- * 2015-03-21 MJS  v1.6  enabling multiple types of bulk velocity
- *
  *********************************************************** */
 
 
