@@ -2,7 +2,7 @@
  *
  *  structs.h - data structures supporting dla-nd
  *
- *  Copyright (C) 2000-8,14-15  Mark J. Stock
+ *  Copyright (C) 2000-8,14-15,23  Mark J. Stock
  *
  *  This file is part of dla-nd.
  *
@@ -29,8 +29,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include <time.h>
+
+// need this for sincos
+#define _GNU_SOURCE
+#include <math.h>
 
 
 /*
@@ -165,7 +168,7 @@ typedef struct simulation_properties {
    int use_input_file;		// TRUE if input file is given on command line
    char input_fn[FNLEN];	/* name of the input file, if not stdin */
    char exectuable_fn[FNLEN];	/* name of the executable */
-   char out_fn_root[FNLEN];	/* root name of the output files */
+   char out_fn_root[FNLEN-64];	/* root name of the output files */
    int write_gif;		/* write a 2D GIF file of the scene */
    int write_pgm;		/* write a 2D ASCII PGM file of the scene */
    int write_png;		/* write PNG files */
@@ -308,7 +311,7 @@ extern particle_ptr new_particle (int,FLOAT,FLOAT,FLOAT*,FLOAT*);
 extern particle_ptr new_stationary_particle (int,FLOAT,FLOAT*);
 extern int read_input_file (sim_ptr,cell_ptr);
 extern int parse_args (int,char**,sim_ptr,cell_ptr);
-extern int Usage (char*,int);
+extern int Usage (char[FNLEN],int);
 extern FLOAT*** allocate_3d_array_F (int,int,int);
 extern FLOAT** allocate_2d_array_F (int,int);
 

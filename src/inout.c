@@ -329,7 +329,7 @@ int free_2d_array_pb(png_byte** array){
  */
 int write_output (sim_ptr sim, cell_ptr top) {
 
-   char outfile[511];
+   char outfile[FNLEN];
    //cell_ptr plotzone = (CELL*)malloc(sizeof(CELL));
 
    // first, vector formats
@@ -536,7 +536,7 @@ int write_2d_dots (sim_ptr sim,cell_ptr cell,int index){
    int i,j;
    int nx = sim->out_img_size;
    int ny = sim->out_img_size;
-   char filename[511];
+   char filename[FNLEN];
    FLOAT scale = 1.0;
    //FIELD2 my_array;		// initialize struct for density field
    //field2_ptr array = &my_array;
@@ -650,7 +650,7 @@ int write_3d_density (sim_ptr sim,cell_ptr cell,field3_ptr ff,int index){
    static FLOAT maxval = -1.0;
    //FLOAT scale = 1.0;
    int printval;
-   char filebase[511],filename[511];
+   char filebase[FNLEN-32],filename[FNLEN];
    FILE *outfile;
 
    // scale ff->rho to unit-maximum
@@ -754,7 +754,7 @@ int write_2d_density (sim_ptr sim,cell_ptr cell,field2_ptr ff,int index){
    static FLOAT maxval = -1.0;
    //FLOAT scale = 1.0;
    int printval;
-   char filename[511];
+   char filename[FNLEN];
    FILE *outfile;
 
    // scale ff->rho to unit-maximum

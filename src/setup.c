@@ -692,7 +692,7 @@ int read_input_file(sim_ptr sim,cell_ptr top) {
  * This function writes basic usage information to stderr,
  * and then quits. Too bad.
  */
-int Usage(char progname[80],int status) {
+int Usage(char progname[FNLEN],int status) {
 
    /* Usage for grav3d */
    static char **cpp, *help_message[] =
