@@ -1,6 +1,8 @@
 # dla-nd
 An arbitrary-dimensional diffusion-limited aggregation simulator.
 
+![Two-dimensional diffusion-limited aggregation, 80000 particles](media/dla2d_80k.png)
+
 ## Features
 `dla-nd` supports the following features
 
