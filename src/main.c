@@ -41,6 +41,8 @@ FLOAT vec_dot (FLOAT*,FLOAT*);
 FLOAT vec_length (FLOAT*);
 FLOAT vec_length_sq (FLOAT*);
 void gaussian_rand (FLOAT*,FLOAT*);
+void gaussian_rand2 (FLOAT*,FLOAT*);
+void gaussian_rand3 (FLOAT*,FLOAT*);
 FLOAT solve_quartic (FLOAT*);
 int correct_for_chiral (FLOAT*, particle_ptr, FLOAT, FLOAT);
 int find_start_point (sim_ptr,cell_ptr,FLOAT*,FLOAT*,FLOAT*);
@@ -570,9 +572,6 @@ void pick_point_on_sphere (FLOAT* loc, FLOAT* center, FLOAT rad,
 
    // int rotex = TRUE;
    int d,td;
-#if DIM<4
-   FLOAT temp[DIM];
-#endif
    FLOAT len = 2.;
    FLOAT dt = rad*rad;
    FLOAT a[5],sdev[DIM+1],r1,r2;
@@ -648,17 +647,16 @@ void pick_point_on_sphere (FLOAT* loc, FLOAT* center, FLOAT rad,
 #if DIM==2
 #ifdef USE_SINE_SPHERE
    // second method uses no iteration at all, because sin/cos is accelerated
-   temp[0] = rand()/(RAND_MAX+1.0);
-   len = 6.2831853071795864 * temp[0];
+   len = 6.2831853071795864 * rand()/(RAND_MAX+1.0);
    loc[0] = cos(len);
    loc[1] = sin(len);
    for (d=0;d<DIM;d++) loc[d] = center[d]+rad*loc[d];
 #else
    // new method needs no sqrt
+   FLOAT temp[2];
    len = 2.;
    while (len > 1.) {
-      // for (d=0;d<DIM;d++) loc[d] = 2.*rand()/(RAND_MAX+1.0) - 1.;
-      for (d=0;d<DIM;d++) temp[d] = 2.*rand()/(RAND_MAX+1.0) - 1.;
+      for (d=0;d<2;d++) temp[d] = 2.*rand()/(RAND_MAX+1.0) - 1.;
       // len = vec_length(loc);
       len = temp[0]*temp[0]+temp[1]*temp[1];
    }
@@ -671,10 +669,11 @@ void pick_point_on_sphere (FLOAT* loc, FLOAT* center, FLOAT rad,
 #endif
 #elif DIM==3
    // new method needs no sqrt
+   FLOAT temp[2];
    len = 2.;
    while (len > 1.) {
       // for (d=0;d<DIM;d++) loc[d] = 2.*rand()/(RAND_MAX+1.0) - 1.;
-      for (d=0;d<DIM;d++) temp[d] = 2.*rand()/(RAND_MAX+1.0) - 1.;
+      for (d=0;d<2;d++) temp[d] = 2.*rand()/(RAND_MAX+1.0) - 1.;
       // len = vec_length(loc);
       len = temp[0]*temp[0]+temp[1]*temp[1];
    }
@@ -1173,6 +1172,36 @@ void gaussian_rand(FLOAT* r1,FLOAT* r2) {
 
    *r1 = (FLOAT)(sqrt(-2.*log(t1))*cos(2.*M_PI*t2));
    *r2 = (FLOAT)(sqrt(-2.*log(t1))*sin(2.*M_PI*t2));
+
+   return;
+}
+
+inline void gaussian_rand2(FLOAT* r1,FLOAT* r2) {
+
+   const double t1 = (double)(rand())/(double)(RAND_MAX);
+   const double t2 = 2.0*M_PI*(double)(rand())/(double)(RAND_MAX);
+
+   const double sntlt = sqrt(-2.0*log(t1));
+   double sinval, cosval;
+   (void)sincos(t2, &sinval, &cosval);
+
+   *r1 = (FLOAT)(sntlt*cosval);
+   *r2 = (FLOAT)(sntlt*sinval);
+
+   return;
+}
+
+inline void gaussian_rand3(FLOAT* r1,FLOAT* r2) {
+
+   const float t1 = (float)(rand())/(float)(RAND_MAX);
+   const float t2 = 2.f*M_PI*(float)(rand())/(float)(RAND_MAX);
+
+   const float sntlt = sqrtf(-2.f*logf(t1));
+   float sinval, cosval;
+   (void)sincosf(t2, &sinval, &cosval);
+
+   *r1 = (FLOAT)(sntlt*cosval);
+   *r2 = (FLOAT)(sntlt*sinval);
 
    return;
 }
