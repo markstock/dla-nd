@@ -65,10 +65,9 @@ cell_ptr build_new_tree(sim_ptr sim,cell_ptr oldtop) {
    newtop->mass = 0.0;
 
    // then, set bounds for the new tree
-   //fprintf(stdout,"making new tree with bounds\n");
    maxsize = 0.0;
    for (i=0;i<DIM;i++) {
-      size = 0.6*(max[i]-min[i])+2.0*sim->new_part_rad;
+      size = 0.66*(max[i]-min[i])+2.0*sim->new_part_rad;
       if (size > maxsize) maxsize = size;
    }
    for (i=0;i<DIM;i++) {
@@ -78,8 +77,8 @@ cell_ptr build_new_tree(sim_ptr sim,cell_ptr oldtop) {
       //fprintf(stdout,"    %g %g\n",newtop->min[i],newtop->max[i]);
    }
    for (i=0; i<2; i++) sim->ff2->d[i] = (newtop->max[i]-newtop->min[i])/sim->ff2->n[i];
-   for (i=0; i<2; i++) sim->out->d[i] = (newtop->max[i]-newtop->min[i])/sim->out->n[i]
-;
+   for (i=0; i<2; i++) sim->out->d[i] = (newtop->max[i]-newtop->min[i])/sim->out->n[i];
+   fprintf(stdout,"  making new tree with x bounds %g %g\n",newtop->min[0],newtop->max[0]);
 
    // lastly, march through all particles in the old tree and place
    // them in the new tree
