@@ -5,7 +5,7 @@
 
 # simulation attributes
 particles	1000000	# place up to N particles
-output_step	100	# write output every M particles
+output_step	1000	# write output every M particles
 
 # particle attributes, these are defaults
 #rad		0.005	# if you want to change the default particle size
@@ -26,7 +26,7 @@ output_step	100	# write output every M particles
 
 # tree options, again, these are currently set to defaults
 #max_levels	50	# maximum number of levels in the tree
-#max_ppc	40	# maximum number of particles per cell
+#max_ppc	64	# maximum number of particles per cell
 
 # the seed particle's mass, location, and velocity (velocity ignored)
 add_part	1 0 0 0 0	# 2D
@@ -41,7 +41,7 @@ write_pgm	no	# write an ASCII PGM file
 write_png	yes	# write a PNG file
 write_part	yes	# write raw ASCII file of particle locations
 write_obj	no	# compute connectivity, write tubular-style OBJ
-image_size	512	# resolution for all output images
+image_size	1024	# resolution for all output images
 image_depth	8	# bits per pixel for images, 8 or 16
 
 write_stats	sample.dat	# name the statistics file

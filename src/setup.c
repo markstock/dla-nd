@@ -67,9 +67,9 @@ int set_defaults (sim_ptr sim, cell_ptr top) {
 
    sim->seed = 1;
    sim->step = 0;
-   sim->output_step = 100;
+   sim->output_step = 1000;
    sim->max_levels = 50;
-   sim->max_parts_in_cell = 40;
+   sim->max_parts_in_cell = 64;
 
    sim->next_output_step = 0;
    sim->next_output_index = 1;
