@@ -609,7 +609,7 @@ void pick_point_on_sphere (FLOAT* loc, FLOAT* center, FLOAT rad,
    if (use_vel != nobulk) {
       // first, find the number of standard deviations in each direction
       for (td=0;td<(DIM+1)/2;td++) {
-         gaussian_rand(&r1,&r2);
+         gaussian_rand2(&r1,&r2);
          sdev[2*td] = r1;
          sdev[2*td+1] = r2;
       }
@@ -1118,7 +1118,7 @@ void increment_counters(cell_ptr cell) {
 /*
  * find the 2-norm of a d-length vector
  */
-FLOAT vec_dot(FLOAT* x,FLOAT* y) {
+inline FLOAT vec_dot(FLOAT* x,FLOAT* y) {
 
    int i;
    FLOAT sum = 0.0;
@@ -1132,7 +1132,7 @@ FLOAT vec_dot(FLOAT* x,FLOAT* y) {
 /*
  * find the 2-norm of a d-length vector
  */
-FLOAT vec_length(FLOAT* x) {
+inline FLOAT vec_length(FLOAT* x) {
 
    int i;
    FLOAT sum = 0.0;
@@ -1147,7 +1147,7 @@ FLOAT vec_length(FLOAT* x) {
 /*
  * find the 2-norm squared of a d-length vector
  */
-FLOAT vec_length_sq(FLOAT* x) {
+inline FLOAT vec_length_sq(FLOAT* x) {
 
    int i;
    FLOAT sum = 0.0;
