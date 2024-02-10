@@ -53,3 +53,17 @@ Windows users can also run "cmd" to enter the DOS-like command prompt. From ther
 * Speed up by multi-threading: allow many independent traversals, but lock when modifying the tree
 * Start using command-line options instead of an input file
 * Fill this out with descriptions of `-grip` and `-stick` and bulk motion, etc. Maybe some images, too.
+* Can we use the one-call sin & cos routine to feed the dual-output Gaussian rng?
+
+## Citing dla-nd
+
+I don't get paid for writing or maintaining this, so if you find this tool useful or mention it in your writing, please please cite it by using the following BibTeX entry.
+
+```
+@Misc{dland2014,
+  author =       {Mark J.~Stock},
+  title =        {dla-nd:  An arbitrary-dimensional diffusion-limited aggregation simulator},
+  howpublished = {\url{https://github.com/markstock/dla-nd}},
+  year =         {2014}
+}
+```
