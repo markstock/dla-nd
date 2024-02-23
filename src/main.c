@@ -2,7 +2,7 @@
  *
  *  main.c - Arbitrary-dimensional diffusion-limited aggregation
  *
- *  Copyright (C) 2000-18  Mark J. Stock, mstock@umich.edu
+ *  Copyright (C) 2000-18,24  Mark J. Stock, mstock@umich.edu
  * 
  *  This file is part of dla-nd.
  *
@@ -26,6 +26,18 @@
 #include "structs.h"
 #include "inout.h"
 
+#if FLOAT == double
+#define SQRT sqrt
+#define LOG log
+#define SIN sin
+#define COS cos
+#else
+#define SQRT sqrtf
+#define LOG logf
+#define SIN sinf
+#define COS cosf
+#endif
+
 int run_sim (sim_ptr,cell_ptr);
 int diffuse_new_particle (sim_ptr,cell_ptr,FLOAT*);
 void pick_point_on_sphere (FLOAT*,FLOAT*,FLOAT,BULKVEL,FLOAT*);
@@ -41,8 +53,6 @@ FLOAT vec_dot (FLOAT*,FLOAT*);
 FLOAT vec_length (FLOAT*);
 FLOAT vec_length_sq (FLOAT*);
 void gaussian_rand (FLOAT*,FLOAT*);
-void gaussian_rand2 (FLOAT*,FLOAT*);
-void gaussian_rand3 (FLOAT*,FLOAT*);
 FLOAT solve_quartic (FLOAT*);
 int correct_for_chiral (FLOAT*, particle_ptr, FLOAT, FLOAT);
 int find_start_point (sim_ptr,cell_ptr,FLOAT*,FLOAT*,FLOAT*);
@@ -609,7 +619,7 @@ void pick_point_on_sphere (FLOAT* loc, FLOAT* center, FLOAT rad,
    if (use_vel != nobulk) {
       // first, find the number of standard deviations in each direction
       for (td=0;td<(DIM+1)/2;td++) {
-         gaussian_rand2(&r1,&r2);
+         gaussian_rand(&r1,&r2);
          sdev[2*td] = r1;
          sdev[2*td+1] = r2;
       }
@@ -758,7 +768,7 @@ FLOAT find_dist_to_closest(cell_ptr cell,FLOAT* loc,FLOAT neardist,
          if (dist < nsq) {
             nsq = dist;
             // it DOES NOT PAY to postpone the sqrt until later!
-            neardist = sqrt(dist);
+            neardist = SQRT(dist);
             // need_to_do_sqrt = TRUE;
             (*closest) = curr;
             newpart->root = curr;
@@ -767,7 +777,7 @@ FLOAT find_dist_to_closest(cell_ptr cell,FLOAT* loc,FLOAT neardist,
       }
    }
 
-   // if (need_to_do_sqrt) neardist = sqrt(dist);
+   // if (need_to_do_sqrt) neardist = SQRT(dist);
 
    return(neardist);
 }
@@ -860,7 +870,7 @@ FLOAT find_dist_to_closest2 (cell_ptr cell,FLOAT* loc,FLOAT neardist,
          if (dist < nsq) {
             nsq = dist;
             // it DOES NOT PAY to postpone the sqrt until later!
-            neardist = sqrt(dist);
+            neardist = SQRT(dist);
             (*closest) = curr;
             newpart->root = curr;
          }
@@ -917,7 +927,7 @@ FLOAT find_dist_to_farthest(cell_ptr cell,FLOAT* loc,FLOAT farthest){
          // fprintf(stderr,"    dist to this particle is %g\n",dist);
          if (dist > fsq) {
             fsq = dist;
-            farthest = sqrt(dist);
+            farthest = SQRT(dist);
          }
          curr = curr->next;
       }
@@ -1163,49 +1173,20 @@ inline FLOAT vec_length_sq(FLOAT* x) {
  *
  * uses the Box-Mueller transformation
  */
-void gaussian_rand(FLOAT* r1,FLOAT* r2) {
+inline void gaussian_rand(FLOAT* r1,FLOAT* r2) {
 
-   double t1,t2;
+   const FLOAT t1 = (FLOAT)(rand())/(FLOAT)(RAND_MAX);
+   const FLOAT t2 = 2.0*M_PI*(FLOAT)(rand())/(FLOAT)(RAND_MAX);
 
-   t1 = (double)(rand())/(double)(RAND_MAX);
-   t2 = (double)(rand())/(double)(RAND_MAX);
-
-   *r1 = (FLOAT)(sqrt(-2.*log(t1))*cos(2.*M_PI*t2));
-   *r2 = (FLOAT)(sqrt(-2.*log(t1))*sin(2.*M_PI*t2));
-
-   return;
-}
-
-inline void gaussian_rand2(FLOAT* r1,FLOAT* r2) {
-
-   const double t1 = (double)(rand())/(double)(RAND_MAX);
-   const double t2 = 2.0*M_PI*(double)(rand())/(double)(RAND_MAX);
-
-   const double sntlt = sqrt(-2.0*log(t1));
-   double sinval, cosval;
-   (void)sincos(t2, &sinval, &cosval);
+   const FLOAT sntlt = SQRT(-2.f*LOG(t1));
+   // gnu compilers will replace these with one sincos call
+   const FLOAT sinval = SIN(t2), cosval = COS(t2);
 
    *r1 = (FLOAT)(sntlt*cosval);
    *r2 = (FLOAT)(sntlt*sinval);
 
    return;
 }
-
-inline void gaussian_rand3(FLOAT* r1,FLOAT* r2) {
-
-   const float t1 = (float)(rand())/(float)(RAND_MAX);
-   const float t2 = 2.f*M_PI*(float)(rand())/(float)(RAND_MAX);
-
-   const float sntlt = sqrtf(-2.f*logf(t1));
-   float sinval, cosval;
-   (void)sincosf(t2, &sinval, &cosval);
-
-   *r1 = (FLOAT)(sntlt*cosval);
-   *r2 = (FLOAT)(sntlt*sinval);
-
-   return;
-}
-
 
 /*
  * solve the quartic equation numerically for the real positive root;
