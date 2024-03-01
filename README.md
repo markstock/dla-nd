@@ -53,7 +53,6 @@ Windows users can also run "cmd" to enter the DOS-like command prompt. From ther
 * Speed up by multi-threading: allow many independent traversals, but lock when modifying the tree
 * Start using command-line options instead of an input file
 * Fill this out with descriptions of `-grip` and `-stick` and bulk motion, etc. Maybe some images, too.
-* Can we use the one-call sin & cos routine to feed the dual-output Gaussian rng?
 
 ## Citing dla-nd
 
